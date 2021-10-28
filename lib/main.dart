@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mendoza_family_app/pages/home_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -48,16 +49,53 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  Icon customIcon = const Icon(Icons.search);
 
-  void _incrementCounter() {
+  Widget customSearchBar = const Text('Mendoza Family Book');
+
+  late String searchString;
+
+  // void _onSearchSubmit(String value) {
+  //   setState(() {
+  //     searchString = value;
+  //   });
+  // }
+
+  void _openQRScanner() {
+    return;
+  }
+
+  void _searchMode() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      if (customIcon.icon == Icons.search) {
+        customIcon = const Icon(Icons.cancel);
+        customSearchBar = const ListTile(
+          leading: Icon(
+            Icons.search,
+            color: Colors.white,
+            size: 28,
+          ),
+          title: TextField(
+            textInputAction: TextInputAction.search,
+            // add submit
+            decoration: InputDecoration(
+              hintText: 'Enter a Name...',
+              hintStyle: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontStyle: FontStyle.italic,
+              ),
+              border: InputBorder.none,
+            ),
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+        );
+      } else {
+        customIcon = const Icon(Icons.search);
+        customSearchBar = const Text('Mendoza Family Book');
+      }
     });
   }
 
@@ -73,8 +111,11 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: customSearchBar,
+        actions: [IconButton(onPressed: _searchMode, icon: customIcon)],
+        centerTitle: true,
       ),
+
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
@@ -94,21 +135,13 @@ class _MyHomePageState extends State<MyHomePage> {
           // axis because Columns are vertical (the cross axis would be
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+          children: const <Widget>[HomePage()],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: _openQRScanner,
         tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.qr_code_2),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
