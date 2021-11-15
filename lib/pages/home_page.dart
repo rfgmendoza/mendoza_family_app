@@ -6,6 +6,10 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Text(userName),
+        child: Column(
+          children: [
+            Text(userName, style: const TextStyle(fontSize: 40)),
+          ],
+        ),
       );
 }
