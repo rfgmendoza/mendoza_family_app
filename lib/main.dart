@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mendoza_family_app/pages/home_page.dart';
+import 'package:mendoza_family_app/pages/login_page.dart';
 import 'package:mendoza_family_app/pages/search_page.dart';
+import 'package:mendoza_family_app/widgets/common_scaffold.dart';
 
 void main() {
   runApp(const MendozaFamilyApp());
@@ -26,10 +28,14 @@ class MendozaFamilyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.blue,
         ),
-        initialRoute: 'home',
+        initialRoute: 'login',
         routes: {
-          'home': (context) => const HomePage(),
-          'search': (context) => const SearchPage()
+          'login': (context) =>
+              const CommonScaffold(title: "Login Page", child: LoginPage()),
+          'home': (context) => const CommonScaffold(
+              title: "Mendoza Family Book - Home", child: HomePage()),
+          'search': (context) => const CommonScaffold(
+              title: "Mendoza Family Book - Search", child: SearchPage())
         },
         home: const HomePage());
   }

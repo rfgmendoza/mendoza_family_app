@@ -28,38 +28,27 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: const Text('Mendoza Family Book - Home'),
-        // actions: [IconButton(onPressed: _searchMode, icon: customIcon)],
-        centerTitle: true,
-      ),
-      body: Center(
-        child: FutureBuilder<User?>(
-          future: _user,
-          builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return const CircularProgressIndicator();
-              default:
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  if (snapshot.hasData) {
-                    return Text(
-                        'user: ${snapshot.data!.id} ${snapshot.data!.name}');
-                  } else {
-                    return const Center(
-                      child: Text("No User"),
-                    );
-                  }
-                }
+    return FutureBuilder<User?>(
+      future: _user,
+      builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.waiting:
+            return const CircularProgressIndicator();
+          default:
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else {
+              if (snapshot.hasData) {
+                return Text(
+                    'user: ${snapshot.data!.id} ${snapshot.data!.name}');
+              } else {
+                return const Center(
+                  child: Text("No User"),
+                );
+              }
             }
-          },
-        ),
-      ),
+        }
+      },
     );
   }
 }

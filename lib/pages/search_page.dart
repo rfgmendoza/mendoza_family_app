@@ -5,28 +5,15 @@ class SearchPage extends StatelessWidget {
   final String userName = "Test User";
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: const Text('Mendoza Family Book - Search'),
-          // actions: [IconButton(onPressed: _searchMode, icon: customIcon)],
-          centerTitle: true,
-        ),
-        body: Center(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Go Home")),
-              ],
-            ),
-          ),
-        ),
+  Widget build(BuildContext context) => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Go Home")),
+        ],
       );
 }
 
