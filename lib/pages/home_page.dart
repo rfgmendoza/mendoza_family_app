@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mendoza_family_app/util/user_class.dart';
+import 'package:mendoza_family_app/util/interfaces.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -42,8 +42,18 @@ class _HomePageState extends State<HomePage> {
                 return Text(
                     'user: ${snapshot.data!.id} ${snapshot.data!.name}');
               } else {
-                return const Center(
-                  child: Text("No User"),
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("No User set"),
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, "login");
+                          },
+                          child: const Text("Set Your Identity"))
+                    ],
+                  ),
                 );
               }
             }

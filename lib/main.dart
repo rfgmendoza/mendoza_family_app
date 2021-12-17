@@ -28,7 +28,7 @@ class MendozaFamilyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.blue,
         ),
-        initialRoute: 'login',
+        initialRoute: 'home',
         routes: {
           'login': (context) =>
               const CommonScaffold(title: "Login Page", child: LoginPage()),
