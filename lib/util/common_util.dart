@@ -40,6 +40,14 @@ Future<User?> getCachedUser() async {
   }
 }
 
+Future<bool> setCachedUser(String userName, String userId) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool success = true;
+  success = success && await prefs.setString('userName', userName);
+  success = success && await prefs.setString('userId', userId);
+  return success;
+}
+
 // Future<List<FamilyPerson>> generateFamilyList(List<dynamic> items) async {
   // SharedPreferences _savedata = await SharedPreferences.getInstance();
 //   List<FamilyPerson> outfamily;
