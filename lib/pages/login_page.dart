@@ -34,7 +34,8 @@ class _LoginPageState extends State<LoginPage> {
                   leading: Text(_searchResult[i].id),
                   title: Text(
                     _searchResult[i].name,
-                  )));
+                  ),
+                  subtitle: Text(_searchResult[i].spouse)));
         });
   }
 
@@ -76,6 +77,13 @@ class _LoginPageState extends State<LoginPage> {
     if (_items.isEmpty) {
       readJson();
     }
+    // TODO: remove
+    if (_items.isNotEmpty && _searchResult.isEmpty) {
+      List<FamilyPerson> searchResults = search("rafael", _items);
+      setState(() {
+        _searchResult = searchResults;
+      });
+    }
     TextEditingController controller = TextEditingController();
     return Center(
       child: Padding(
@@ -101,7 +109,13 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ],
             ),
-            _searchResult.isNotEmpty ? _buildSearchResults() : Container()
+            Expanded(
+                child: SizedBox(
+              height: 200.0,
+              child: _searchResult.isNotEmpty
+                  ? _buildSearchResults()
+                  : Container(),
+            ))
           ],
         ),
       ),
