@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mendoza_family_app/util/interfaces.dart';
+import 'package:mendoza_family_app/util/common_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,13 +17,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _user = _savedata.then((SharedPreferences prefs) {
-      String? username = prefs.getString('userName');
-      String? userid = prefs.getString('userId');
-      if (userid != null && username != null) {
-        return User(userid, username);
-      }
-    });
+    _user = getCachedUser();
   }
 
   @override
