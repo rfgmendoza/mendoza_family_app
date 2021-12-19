@@ -1,7 +1,9 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mendoza_family_app/util/interfaces.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -12,8 +14,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   List _items = [];
-  List _searchResult = [];
-  TextEditingController controller = TextEditingController();
+  List<FamilyPerson> _searchResult = [];
 
   Future<void> readJson() async {
     final String response =
@@ -26,9 +27,48 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildSearchResults() {
     return ListView.builder(
-        itemCount: _searchResult.length, itemBuilder: (context, i) {
-          return Card(child: ListTile(leading: Text(_searchResult[i].)))
+        itemCount: _searchResult.length,
+        itemBuilder: (context, i) {
+          return Card(
+              child: ListTile(
+                  leading: Text(_searchResult[i].id),
+                  title: Text(
+                    _searchResult[i].name,
+                  )));
         });
+  }
+
+  List<FamilyPerson> search(String searchText, List items) {
+    if (searchText.isEmpty) {
+      return [];
+    }
+    Queue searchNodes = Queue.from(_items);
+    List<FamilyPerson> foundPeople = [];
+    List<String> searchFields = ["id", "name", "spouse"];
+    while (searchNodes.isNotEmpty) {
+      var node = searchNodes.removeFirst();
+      bool found = false;
+      for (var field in searchFields) {
+        if (node[field]
+            .toString()
+            .toUpperCase()
+            .contains(searchText.toUpperCase())) {
+          found = true;
+        }
+      }
+      if (found) {
+        foundPeople.add(FamilyPerson(
+            id: node["id"],
+            name: node["name"],
+            spouse: node["spouse"],
+            deceased: node["deceased"],
+            spouseDeceased: node["spouseDeceased"]));
+      }
+      if (node["children"] != null && node["children"] != []) {
+        searchNodes.addAll(node["children"]);
+      }
+    }
+    return foundPeople;
   }
 
   @override
@@ -36,29 +76,33 @@ class _LoginPageState extends State<LoginPage> {
     if (_items.isEmpty) {
       readJson();
     }
-    int itemCount = _items.length;
+    TextEditingController controller = TextEditingController();
     return Center(
-      child: Form(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text("Enter Name or Family Id"),
-              TextField(controller: controller),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      return;
-                    },
-                    child: const Icon(Icons.search),
-                  ),
-                ],
-              ),
-            ],
-          ),
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text("Enter Name or Family Id"),
+            TextField(controller: controller),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    String searchtext = controller.text;
+                    List<FamilyPerson> searchResults =
+                        search(searchtext, _items);
+                    setState(() {
+                      _searchResult = searchResults;
+                    });
+                  },
+                  child: const Icon(Icons.search),
+                ),
+              ],
+            ),
+            _searchResult.isNotEmpty ? _buildSearchResults() : Container()
+          ],
         ),
       ),
     );
