@@ -26,19 +26,22 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void confirmAlert(String userName, String userId) {
-    Widget cancelButton =
-        TextButton(onPressed: () {}, child: const Text("Cancel"));
+    Widget cancelButton = TextButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+        child: const Text("Cancel"));
     Widget confirmButton = TextButton(
         onPressed: () async {
           bool result = await setCachedUser(userName, userId);
-          if (result) {
+          if (result == true) {
             Toast.show("Set your User details, Welcome!", context,
                 duration: Toast.lengthShort);
-            Navigator.of(context).pop();
+            Navigator.popAndPushNamed(context, "home");
           } else {
             Toast.show("Failed to set user details, try again", context,
                 duration: Toast.lengthShort);
-            Navigator.pushReplacementNamed(context, "home");
+            Navigator.of(context).pop();
           }
         },
         child: const Text("Confirm"));
@@ -79,45 +82,60 @@ class _LoginPageState extends State<LoginPage> {
     if (_items.isEmpty) {
       readJson();
     }
-    // TODO: remove and replace with better initial state?
-    if (_items.isNotEmpty && _searchResult.isEmpty) {
-      List<FamilyPerson> searchResults = search("rafael", _items);
+    TextEditingController controller = TextEditingController();
+    void submitSearch(String searchText) {
+      List<FamilyPerson> searchResults = search(searchText, _items);
       setState(() {
         _searchResult = searchResults;
       });
     }
-    TextEditingController controller = TextEditingController();
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text("Enter Name or Family Id"),
-            TextField(controller: controller),
+            const Text(
+              "Enter Name or Family Id",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                ElevatedButton(
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(4.0, 0, 0, 0),
+                    child: TextField(
+                      controller: controller,
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: (value) {
+                        submitSearch(value);
+                      },
+                    ),
+                  ),
+                ),
+                TextButton(
                   onPressed: () {
                     String searchtext = controller.text;
-                    List<FamilyPerson> searchResults =
-                        search(searchtext, _items);
-                    setState(() {
-                      _searchResult = searchResults;
-                    });
+                    submitSearch(searchtext);
                   },
-                  child: const Icon(Icons.search),
+                  child: const Icon(
+                    Icons.search,
+                    size: 40.0,
+                  ),
                 ),
               ],
             ),
-            Expanded(
-                child: SizedBox(
-              height: 200.0,
-              child: _searchResult.isNotEmpty
-                  ? _buildSearchResults()
-                  : Container(),
-            ))
+            _searchResult.isNotEmpty
+                ? Expanded(
+                    child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 0),
+                    child:
+                        SizedBox(height: 200.0, child: _buildSearchResults()),
+                  ))
+                : Container()
           ],
         ),
       ),

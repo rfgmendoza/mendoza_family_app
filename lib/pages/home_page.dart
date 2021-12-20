@@ -33,8 +33,19 @@ class _HomePageState extends State<HomePage> {
               return Text('Error: ${snapshot.error}');
             } else {
               if (snapshot.hasData) {
-                return Text(
-                    'user: ${snapshot.data!.id} ${snapshot.data!.name}');
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('user: ${snapshot.data!.id} ${snapshot.data!.name}'),
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, "login");
+                          },
+                          child: const Text("Change Your Identity"))
+                    ],
+                  ),
+                );
               } else {
                 return Center(
                   child: Column(
