@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:collection';
 
 class User {
   final String id;
@@ -46,6 +46,39 @@ Future<bool> setCachedUser(String userName, String userId) async {
   success = success && await prefs.setString('userName', userName);
   success = success && await prefs.setString('userId', userId);
   return success;
+}
+
+List<FamilyPerson> search(String searchText, List items) {
+  if (searchText.isEmpty) {
+    return [];
+  }
+  Queue searchNodes = Queue.from(items);
+  List<FamilyPerson> foundPeople = [];
+  List<String> searchFields = ["id", "name", "spouse"];
+  while (searchNodes.isNotEmpty) {
+    var node = searchNodes.removeFirst();
+    bool found = false;
+    for (var field in searchFields) {
+      if (node[field]
+          .toString()
+          .toUpperCase()
+          .contains(searchText.toUpperCase())) {
+        found = true;
+      }
+    }
+    if (found) {
+      foundPeople.add(FamilyPerson(
+          id: node["id"],
+          name: node["name"],
+          spouse: node["spouse"],
+          deceased: node["deceased"],
+          spouseDeceased: node["spouseDeceased"]));
+    }
+    if (node["children"] != null && node["children"] != []) {
+      searchNodes.addAll(node["children"]);
+    }
+  }
+  return foundPeople;
 }
 
 // Future<List<FamilyPerson>> generateFamilyList(List<dynamic> items) async {

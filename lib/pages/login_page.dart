@@ -1,9 +1,9 @@
-import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
+import 'package:toast/toast.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -25,12 +25,47 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
+  void confirmAlert(String userName, String userId) {
+    Widget cancelButton =
+        TextButton(onPressed: () {}, child: const Text("Cancel"));
+    Widget confirmButton = TextButton(
+        onPressed: () async {
+          bool result = await setCachedUser(userName, userId);
+          if (result) {
+            Toast.show("Set your User details, Welcome!", context,
+                duration: Toast.lengthShort);
+            Navigator.of(context).pop();
+          } else {
+            Toast.show("Failed to set user details, try again", context,
+                duration: Toast.lengthShort);
+            Navigator.pushReplacementNamed(context, "home");
+          }
+        },
+        child: const Text("Confirm"));
+
+    AlertDialog alert = AlertDialog(
+        title: const Text("Confirm Selection"),
+        content: const Text("Are you sure this you?"),
+        actions: [cancelButton, confirmButton]);
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        });
+  }
+
   Widget _buildSearchResults() {
     return ListView.builder(
         itemCount: _searchResult.length,
         itemBuilder: (context, i) {
           return Card(
               child: ListTile(
+                  trailing: ElevatedButton(
+                    child: const Text("Select"),
+                    onPressed: () {
+                      confirmAlert(_searchResult[i].name, _searchResult[i].id);
+                    },
+                  ),
                   leading: Text(_searchResult[i].id),
                   title: Text(
                     _searchResult[i].name,
@@ -39,45 +74,12 @@ class _LoginPageState extends State<LoginPage> {
         });
   }
 
-  List<FamilyPerson> search(String searchText, List items) {
-    if (searchText.isEmpty) {
-      return [];
-    }
-    Queue searchNodes = Queue.from(_items);
-    List<FamilyPerson> foundPeople = [];
-    List<String> searchFields = ["id", "name", "spouse"];
-    while (searchNodes.isNotEmpty) {
-      var node = searchNodes.removeFirst();
-      bool found = false;
-      for (var field in searchFields) {
-        if (node[field]
-            .toString()
-            .toUpperCase()
-            .contains(searchText.toUpperCase())) {
-          found = true;
-        }
-      }
-      if (found) {
-        foundPeople.add(FamilyPerson(
-            id: node["id"],
-            name: node["name"],
-            spouse: node["spouse"],
-            deceased: node["deceased"],
-            spouseDeceased: node["spouseDeceased"]));
-      }
-      if (node["children"] != null && node["children"] != []) {
-        searchNodes.addAll(node["children"]);
-      }
-    }
-    return foundPeople;
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_items.isEmpty) {
       readJson();
     }
-    // TODO: remove
+    // TODO: remove and replace with better initial state?
     if (_items.isNotEmpty && _searchResult.isEmpty) {
       List<FamilyPerson> searchResults = search("rafael", _items);
       setState(() {
