@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mendoza_family_app/pages/login_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -11,7 +12,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<User?> _user;
-  final Future<SharedPreferences> _savedata = SharedPreferences.getInstance();
   Widget? searchButton;
 
   @override
@@ -40,26 +40,20 @@ class _HomePageState extends State<HomePage> {
                       Text('user: ${snapshot.data!.id} ${snapshot.data!.name}'),
                       ElevatedButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, "login");
+                            clearCachedUser().then((value) =>
+                                Navigator.popAndPushNamed(context, "home"));
                           },
-                          child: const Text("Change Your Identity"))
+                          child: const Text("Change Your Identity")),
+                      ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, "search");
+                          },
+                          child: const Text("Find Relative"))
                     ],
                   ),
                 );
               } else {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("No User set"),
-                      ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, "login");
-                          },
-                          child: const Text("Set Your Identity"))
-                    ],
-                  ),
-                );
+                return const LoginPage();
               }
             }
         }

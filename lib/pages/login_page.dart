@@ -16,15 +16,6 @@ class _LoginPageState extends State<LoginPage> {
   List _items = [];
   List<FamilyPerson> _searchResult = [];
 
-  Future<void> readJson() async {
-    final String response =
-        await rootBundle.loadString('data/family_book.json');
-    final data = await json.decode(response);
-    setState(() {
-      _items = data["families"];
-    });
-  }
-
   void confirmAlert(String userName, String userId) {
     Widget cancelButton = TextButton(
         onPressed: () {
@@ -37,7 +28,8 @@ class _LoginPageState extends State<LoginPage> {
           if (result == true) {
             Toast.show("Set your User details, Welcome!", context,
                 duration: Toast.lengthShort);
-            Navigator.popAndPushNamed(context, "home");
+            Navigator.pushNamedAndRemoveUntil(
+                context, "home", (route) => false);
           } else {
             Toast.show("Failed to set user details, try again", context,
                 duration: Toast.lengthShort);
@@ -80,7 +72,11 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     if (_items.isEmpty) {
-      readJson();
+      readFamilyJson().then((value) => {
+            setState(() {
+              _items = value;
+            })
+          });
     }
     TextEditingController controller = TextEditingController();
     void submitSearch(String searchText) {

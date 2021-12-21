@@ -38,6 +38,7 @@ dependencies:
   toast:
     git:
       url: https://github.com/appdev/FlutterToast.git
+  graphview: ^1.1.0
 
 dev_dependencies:
   flutter_test:

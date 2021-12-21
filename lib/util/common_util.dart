@@ -1,5 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:collection';
+import 'package:flutter/services.dart';
+import 'dart:convert';
 
 class User {
   final String id;
@@ -40,11 +42,25 @@ Future<User?> getCachedUser() async {
   }
 }
 
+Future<List<dynamic>> readFamilyJson() async {
+  final String response = await rootBundle.loadString('data/family_book.json');
+  final data = await json.decode(response);
+  return data["families"];
+}
+
 Future<bool> setCachedUser(String userName, String userId) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool success = true;
   success = success && await prefs.setString('userName', userName);
   success = success && await prefs.setString('userId', userId);
+  return success;
+}
+
+Future<bool> clearCachedUser() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool success = true;
+  success = success && await prefs.remove('userName');
+  success = success && await prefs.remove('userId');
   return success;
 }
 
