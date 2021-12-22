@@ -54,9 +54,9 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     builder
-      ..siblingSeparation = (30)
-      ..levelSeparation = (15)
-      ..subtreeSeparation = (15)
+      ..siblingSeparation = (10)
+      ..levelSeparation = (10)
+      ..subtreeSeparation = (10)
       ..orientation = (_orientation);
     return Scaffold(
       appBar: AppBar(),
@@ -68,7 +68,7 @@ class _SearchPageState extends State<SearchPage> {
                     BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
               });
             },
-            child: Text("Horizontal")),
+            child: const Text("Horizontal")),
         ElevatedButton(
             onPressed: () {
               setState(() {
@@ -76,7 +76,7 @@ class _SearchPageState extends State<SearchPage> {
                     BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
               });
             },
-            child: Text("Vertical"))
+            child: const Text("Vertical"))
       ],
       body: FutureBuilder(
           future: _buildTree(),
@@ -133,6 +133,44 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
+  // Widget nodeContents(FamilyPerson a) {
+  //   return a != null
+  //       ? SizedBox(
+  //           width: 300,
+  //           child: Column(
+  //             children: [
+  //               Text(a.id),
+  //               Text(
+  //                 a.name,
+  //                 maxLines: 2,
+  //                 softWrap: true,
+  //                 textAlign: TextAlign.start,
+  //               ),
+  //               if (a.spouse != "")
+  //                 Text(
+  //                   a.spouse,
+  //                   textAlign: TextAlign.start,
+  //                 ),
+  //             ],
+  //           ),
+  //         )
+  //       : const Text("?");
+  // }
+
+  Widget nodeContents(FamilyPerson a) {
+    return SizedBox(
+      width: _orientation == BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT
+          ? 300
+          : 200,
+      child: Card(
+          color: Colors.white54,
+          child: ListTile(
+              leading: Text(a.id),
+              title: Text(a.name),
+              subtitle: Text(a.spouse))),
+    );
+  }
+
   Widget rectangleWidget(FamilyPerson? a) {
     var name = a != null ? a.name : "?";
     return InkWell(
@@ -140,14 +178,11 @@ class _SearchPageState extends State<SearchPage> {
         print('clicked');
       },
       child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(1),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
-            boxShadow: const [
-              BoxShadow(color: Colors.blue, spreadRadius: 1),
-            ],
           ),
-          child: Text(name)),
+          child: a != null ? nodeContents(a) : const Text("?")),
     );
   }
 }
