@@ -2,12 +2,10 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:graphview/GraphView.dart';
-import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
 
 class SearchPage extends StatefulWidget {
-  SearchPage({Key? key}) : super(key: key);
+  const SearchPage({Key? key}) : super(key: key);
 
   @override
   _SearchPageState createState() => _SearchPageState();
@@ -17,38 +15,93 @@ class _SearchPageState extends State<SearchPage> {
   final Graph graph = Graph()..isTree = true;
   BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
 
-  Future<List<Node>> buildTree() async {
+  Future<Map<String, FamilyPerson>> _buildTree() async {
     List<dynamic> items = await readFamilyJson();
-    Queue itemQueue = Queue.from(items);
-    List<Node> nodes = [];
+    Queue itemQueue = Queue.from(items[6]["children"][4]["children"]);
+    Map<String, FamilyPerson> nodes = {};
     while (itemQueue.isNotEmpty) {
       var rawData = itemQueue.removeFirst();
-      // TODO: figure out how to add and work with nodes
-      // Node.id(rawData["id"])
-      // create child nodes, add children as edges on graph
-      if (rawData["children"] != null && rawData["children"] != []) {
-        itemQueue.addAll(rawData["children"]);
+      String id = rawData["id"];
+      Node node = Node.Id(id);
+      nodes.putIfAbsent(id, () => FamilyPerson.fromJson(rawData));
+      List<dynamic> children = rawData["children"] ?? [];
+      itemQueue.addAll(children);
+      for (var element in children) {
+        Node cNode = Node.Id(element["id"]);
+        nodes.putIfAbsent(id, () => FamilyPerson.fromJson(rawData));
+        graph.addEdge(node, cNode);
       }
     }
+    return nodes;
   }
 
   @override
-  Future<void> initState() async {}
+  void initState() {
+    super.initState();
+    builder
+      ..siblingSeparation = (100)
+      ..levelSeparation = (150)
+      ..subtreeSeparation = (150)
+      ..orientation = (BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return InteractiveViewer(
-        child: GraphView(
-            graph: graph,
-            algorithm:
-                BuchheimWalkerAlgorithm(builder, TreeEdgeRenderer(builder)),
-            builder: (Node node) {
-              var a = node.key.value as int;
-              return rectangleWidget(a);
-            }));
+    return Scaffold(
+      appBar: AppBar(),
+      body: FutureBuilder(
+          future: _buildTree(),
+          builder:
+              (context, AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
+            switch (snapshot.connectionState) {
+              case ConnectionState.waiting:
+                return const CircularProgressIndicator();
+              default:
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  return renderGraph(snapshot);
+                }
+            }
+          }),
+    );
   }
 
-  Widget rectangleWidget(int a) {
+  Widget renderGraph(AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Expanded(
+          child: InteractiveViewer(
+              constrained: false,
+              scaleEnabled: true,
+              boundaryMargin: const EdgeInsets.all(100),
+              minScale: 0.01,
+              maxScale: 5.6,
+              child: renderInnerGraph(snapshot)),
+        ),
+      ],
+    );
+  }
+
+  GraphView renderInnerGraph(
+      AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
+    return GraphView(
+      graph: graph,
+      algorithm: BuchheimWalkerAlgorithm(builder, TreeEdgeRenderer(builder)),
+      paint: Paint()
+        ..color = Colors.green
+        ..strokeWidth = 1
+        ..style = PaintingStyle.stroke,
+      builder: (Node node) {
+        FamilyPerson? a = snapshot.data![node.key?.value];
+        return rectangleWidget(a);
+      },
+    );
+  }
+
+  Widget rectangleWidget(FamilyPerson? a) {
+    var name = a != null ? a.name : "?";
     return InkWell(
       onTap: () {
         print('clicked');
@@ -61,7 +114,7 @@ class _SearchPageState extends State<SearchPage> {
               BoxShadow(color: Colors.blue, spreadRadius: 1),
             ],
           ),
-          child: Text('Node ${a}')),
+          child: Text(name)),
     );
   }
 }

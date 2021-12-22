@@ -83,12 +83,7 @@ List<FamilyPerson> search(String searchText, List items) {
       }
     }
     if (found) {
-      foundPeople.add(FamilyPerson(
-          id: node["id"],
-          name: node["name"],
-          spouse: node["spouse"],
-          deceased: node["deceased"],
-          spouseDeceased: node["spouseDeceased"]));
+      foundPeople.add(FamilyPerson.fromJson(node));
     }
     if (node["children"] != null && node["children"] != []) {
       searchNodes.addAll(node["children"]);

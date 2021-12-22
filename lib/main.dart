@@ -31,8 +31,7 @@ class MendozaFamilyApp extends StatelessWidget {
         routes: {
           'home': (context) => const CommonScaffold(
               title: "Mendoza Family Book - Home", child: HomePage()),
-          'search': (context) => CommonScaffold(
-              title: "Mendoza Family Book - Search", child: SearchPage())
+          'search': (context) => const SearchPage()
         },
         home: const HomePage());
   }
