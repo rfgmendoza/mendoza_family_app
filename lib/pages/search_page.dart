@@ -166,8 +166,16 @@ class _SearchPageState extends State<SearchPage> {
           color: Colors.white54,
           child: ListTile(
               leading: Text(a.id),
-              title: Text(a.name),
-              subtitle: Text(a.spouse))),
+              title: Text(
+                a.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              subtitle: Text(
+                a.spouse,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ))),
     );
   }
 
