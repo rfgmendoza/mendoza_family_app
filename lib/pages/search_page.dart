@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:graphview/GraphView.dart';
@@ -13,42 +14,70 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final Graph graph = Graph()..isTree = true;
+  int _orientation = BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   orientation = BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
+  // }
+
   BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
 
   Future<Map<String, FamilyPerson>> _buildTree() async {
     List<dynamic> items = await readFamilyJson();
-    Queue itemQueue = Queue.from(items[6]["children"][4]["children"]);
+    List<dynamic> templist = []..add(items[2]);
+    Queue itemQueue = Queue.from(templist);
+    // Queue itemQueue = Queue.from(items);
     Map<String, FamilyPerson> nodes = {};
     while (itemQueue.isNotEmpty) {
       var rawData = itemQueue.removeFirst();
       String id = rawData["id"];
-      Node node = Node.Id(id);
-      nodes.putIfAbsent(id, () => FamilyPerson.fromJson(rawData));
-      List<dynamic> children = rawData["children"] ?? [];
-      itemQueue.addAll(children);
-      for (var element in children) {
-        Node cNode = Node.Id(element["id"]);
+      if (id != "") {
+        Node node = Node.Id(id);
         nodes.putIfAbsent(id, () => FamilyPerson.fromJson(rawData));
-        graph.addEdge(node, cNode);
+        List<dynamic> children = rawData["children"] ?? [];
+        itemQueue.addAll(children);
+        for (var element in children) {
+          String cId = element["id"];
+          if (cId != "") {
+            Node cNode = Node.Id(cId);
+            nodes.putIfAbsent(id, () => FamilyPerson.fromJson(rawData));
+            graph.addEdge(node, cNode);
+          }
+        }
       }
     }
     return nodes;
   }
 
   @override
-  void initState() {
-    super.initState();
-    builder
-      ..siblingSeparation = (100)
-      ..levelSeparation = (150)
-      ..subtreeSeparation = (150)
-      ..orientation = (BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    builder
+      ..siblingSeparation = (30)
+      ..levelSeparation = (15)
+      ..subtreeSeparation = (15)
+      ..orientation = (_orientation);
     return Scaffold(
       appBar: AppBar(),
+      persistentFooterButtons: [
+        ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _orientation =
+                    BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
+              });
+            },
+            child: Text("Horizontal")),
+        ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _orientation =
+                    BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
+              });
+            },
+            child: Text("Vertical"))
+      ],
       body: FutureBuilder(
           future: _buildTree(),
           builder:
@@ -73,12 +102,16 @@ class _SearchPageState extends State<SearchPage> {
       children: [
         Expanded(
           child: InteractiveViewer(
-              constrained: false,
-              scaleEnabled: true,
-              boundaryMargin: const EdgeInsets.all(100),
-              minScale: 0.01,
-              maxScale: 5.6,
-              child: renderInnerGraph(snapshot)),
+              minScale: 0.1,
+              maxScale: 1,
+              boundaryMargin: const EdgeInsets.all(double.infinity),
+              child: OverflowBox(
+                  alignment: Alignment.center,
+                  minWidth: 0.0,
+                  minHeight: 0.0,
+                  maxWidth: double.infinity,
+                  maxHeight: double.infinity,
+                  child: renderInnerGraph(snapshot))),
         ),
       ],
     );
