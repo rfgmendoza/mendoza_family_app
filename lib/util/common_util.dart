@@ -1,3 +1,4 @@
+import 'package:graphview/GraphView.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:collection';
 import 'package:flutter/services.dart';
@@ -7,6 +8,12 @@ class User {
   final String id;
   final String name;
   const User(this.id, this.name);
+}
+
+class FamilyTreeData {
+  final Map<String, FamilyPerson> familyMap;
+  final Graph graph;
+  const FamilyTreeData(this.familyMap, this.graph);
 }
 
 class FamilyPerson {
@@ -48,11 +55,11 @@ Future<List<dynamic>> readFamilyJson() async {
   return data["families"];
 }
 
-Future<bool> setCachedUser(String userName, String userId) async {
+Future<bool> setCachedUser(FamilyPerson person) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool success = true;
-  success = success && await prefs.setString('userName', userName);
-  success = success && await prefs.setString('userId', userId);
+  success = success && await prefs.setString('userName', person.name);
+  success = success && await prefs.setString('userId', person.id);
   return success;
 }
 
@@ -92,9 +99,31 @@ List<FamilyPerson> search(String searchText, List items) {
   return foundPeople;
 }
 
-// Future<List<FamilyPerson>> generateFamilyList(List<dynamic> items) async {
-  // SharedPreferences _savedata = await SharedPreferences.getInstance();
-//   List<FamilyPerson> outfamily;
-
-//   return [];
-// }
+Future<Map<String, FamilyPerson>> generateFamilyTreeData(Graph graph) async {
+  List<dynamic> items = await readFamilyJson();
+  List<dynamic> templist = [items[3]];
+  Queue itemQueue = Queue.from(templist);
+  // Queue itemQueue = Queue.from(items);
+  Map<String, FamilyPerson> nodes = {};
+  while (itemQueue.isNotEmpty) {
+    var rawData = itemQueue.removeFirst();
+    String id = rawData["id"];
+    Node node = Node.Id(id);
+    nodes.putIfAbsent(id, () => FamilyPerson.fromJson(rawData));
+    List<dynamic> children = rawData["children"] ?? [];
+    int noIdChildCount = 0;
+    for (var element in children) {
+      String cId = element["id"];
+      if (cId == "") {
+        cId = id + String.fromCharCode(noIdChildCount + 65);
+        noIdChildCount++;
+        element["id"] = cId;
+      }
+      Node cNode = Node.Id(cId);
+      nodes.putIfAbsent(id, () => FamilyPerson.fromJson(rawData));
+      itemQueue.add(element);
+      graph.addEdge(node, cNode);
+    }
+  }
+  return nodes;
+}
