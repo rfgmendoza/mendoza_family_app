@@ -127,5 +127,7 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
       graph.addEdge(node, cNode);
     }
   }
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString("nodeMap", nodes.toString());
   return nodes;
 }
