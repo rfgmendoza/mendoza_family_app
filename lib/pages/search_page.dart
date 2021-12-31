@@ -3,15 +3,53 @@ import 'package:graphview/GraphView.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({Key? key}) : super(key: key);
+  final User user;
+  const SearchPage({Key? key, required this.user}) : super(key: key);
 
   @override
   _SearchPageState createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> {
-  final Graph graph = Graph()..isTree = true;
   int _orientation = BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(),
+        persistentFooterButtons: [
+          ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _orientation =
+                      BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
+                });
+              },
+              child: const Text("Horizontal")),
+          ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _orientation =
+                      BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
+                });
+              },
+              child: const Text("Vertical"))
+        ],
+        body: GraphRenderer(orientation: _orientation, user: widget.user));
+  }
+}
+
+class GraphRenderer extends StatefulWidget {
+  final int orientation;
+  final User user;
+  const GraphRenderer({Key? key, required this.orientation, required this.user})
+      : super(key: key);
+
+  @override
+  _GraphRendererState createState() => _GraphRendererState();
+}
+
+class _GraphRendererState extends State<GraphRenderer> {
+  final Graph graph = Graph()..isTree = true;
 
   BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
 
@@ -21,42 +59,59 @@ class _SearchPageState extends State<SearchPage> {
       ..siblingSeparation = (10)
       ..levelSeparation = (10)
       ..subtreeSeparation = (10)
-      ..orientation = (_orientation);
-    return Scaffold(
-      appBar: AppBar(),
-      persistentFooterButtons: [
-        ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _orientation =
-                    BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
-              });
-            },
-            child: const Text("Horizontal")),
-        ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _orientation =
-                    BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
-              });
-            },
-            child: const Text("Vertical"))
-      ],
-      body: FutureBuilder(
-          future: generateFamilyTreeData(graph),
-          builder:
-              (context, AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.waiting:
-                return const CircularProgressIndicator();
-              default:
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  return renderGraph(snapshot);
-                }
-            }
-          }),
+      ..orientation = (widget.orientation);
+    return FutureBuilder(
+        future: generateFamilyTreeData(graph, widget.user),
+        builder: (context, AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.waiting:
+              return const CircularProgressIndicator();
+            default:
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                return renderGraph(snapshot);
+              }
+          }
+        });
+  }
+
+  Widget nodeContents(FamilyPerson a) {
+    bool isUser = a.id == widget.user.id;
+
+    return SizedBox(
+      width: widget.orientation ==
+              BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT
+          ? 300
+          : 200,
+      child: Card(
+          color: !isUser ? Colors.white54 : Colors.blueAccent,
+          child: ListTile(
+              leading: Text(a.id),
+              title: Text(
+                a.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              subtitle: Text(
+                a.spouse,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ))),
+    );
+  }
+
+  Widget rectangleWidget(FamilyPerson? a) {
+    return InkWell(
+      onTap: () {
+        print('clicked');
+      },
+      child: Container(
+          padding: const EdgeInsets.all(1),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: a != null ? nodeContents(a) : const Text("?")),
     );
   }
 
@@ -66,7 +121,7 @@ class _SearchPageState extends State<SearchPage> {
       children: [
         Expanded(
           child: InteractiveViewer(
-              minScale: 0.4,
+              minScale: 0.1,
               maxScale: 2,
               boundaryMargin: const EdgeInsets.all(double.infinity),
               child: OverflowBox(
@@ -94,66 +149,6 @@ class _SearchPageState extends State<SearchPage> {
         FamilyPerson? a = snapshot.data![node.key?.value];
         return rectangleWidget(a);
       },
-    );
-  }
-
-  // Widget nodeContents(FamilyPerson a) {
-  //   return a != null
-  //       ? SizedBox(
-  //           width: 300,
-  //           child: Column(
-  //             children: [
-  //               Text(a.id),
-  //               Text(
-  //                 a.name,
-  //                 maxLines: 2,
-  //                 softWrap: true,
-  //                 textAlign: TextAlign.start,
-  //               ),
-  //               if (a.spouse != "")
-  //                 Text(
-  //                   a.spouse,
-  //                   textAlign: TextAlign.start,
-  //                 ),
-  //             ],
-  //           ),
-  //         )
-  //       : const Text("?");
-  // }
-
-  Widget nodeContents(FamilyPerson a) {
-    return SizedBox(
-      width: _orientation == BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT
-          ? 300
-          : 200,
-      child: Card(
-          color: Colors.white54,
-          child: ListTile(
-              leading: Text(a.id),
-              title: Text(
-                a.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: Text(
-                a.spouse,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ))),
-    );
-  }
-
-  Widget rectangleWidget(FamilyPerson? a) {
-    return InkWell(
-      onTap: () {
-        print('clicked');
-      },
-      child: Container(
-          padding: const EdgeInsets.all(1),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: a != null ? nodeContents(a) : const Text("?")),
     );
   }
 }

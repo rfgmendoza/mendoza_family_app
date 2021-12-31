@@ -99,9 +99,11 @@ List<FamilyPerson> search(String searchText, List items) {
   return foundPeople;
 }
 
-Future<Map<String, FamilyPerson>> generateFamilyTreeData(Graph graph) async {
+Future<Map<String, FamilyPerson>> generateFamilyTreeData(
+    Graph graph, User user) async {
   List<dynamic> items = await readFamilyJson();
-  List<dynamic> templist = [items[3]];
+  int familyGroup = int.parse(user.id[0]) - 1;
+  List<dynamic> templist = [items[familyGroup]];
   Queue itemQueue = Queue.from(templist);
   // Queue itemQueue = Queue.from(items);
   Map<String, FamilyPerson> nodes = {};
