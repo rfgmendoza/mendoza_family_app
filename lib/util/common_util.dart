@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:graphview/GraphView.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:collection';
@@ -100,7 +101,10 @@ List<FamilyPerson> search(String searchText, List items) {
 }
 
 Future<Map<String, FamilyPerson>> generateFamilyTreeData(
-    Graph graph, User user) async {
+    Graph graph, User user, Map<String, FamilyPerson> memoData) async {
+  if (memoData.isNotEmpty) {
+    return memoData;
+  }
   List<dynamic> items = await readFamilyJson();
   int familyGroup = int.parse(user.id[0]) - 1;
   List<dynamic> templist = [items[familyGroup]];
