@@ -32,7 +32,6 @@ class MendozaFamilyApp extends StatelessWidget {
         initialRoute: 'home',
         routes: {
           'home': (context) => tryLogin(),
-          'search': (context) => trySearchPage(),
         },
         home: tryLogin());
   }
@@ -53,23 +52,6 @@ class MendozaFamilyApp extends StatelessWidget {
             }
             return const CommonScaffold(
                 title: "Which Mendoza Are You?", child: LoginPage());
-        }
-      },
-    );
-  }
-
-  Widget trySearchPage() {
-    return FutureBuilder(
-      future: getCachedUser(),
-      builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return const CircularProgressIndicator();
-          default:
-            return snapshot.hasData && snapshot.data != null
-                ? SearchPage(user: snapshot.data!)
-                : const CommonScaffold(
-                    title: "Which Mendoza Are You?", child: LoginPage());
         }
       },
     );

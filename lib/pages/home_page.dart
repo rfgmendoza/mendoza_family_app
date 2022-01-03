@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mendoza_family_app/pages/search_page.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mendoza_family_app/pages/login_page.dart';
@@ -11,7 +12,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late Future<User?> _user;
+  late Future<FamilyPerson?> _user;
   Widget? searchButton;
 
   @override
@@ -22,9 +23,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<User?>(
+    return FutureBuilder<FamilyPerson?>(
       future: _user,
-      builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<FamilyPerson?> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             return const CircularProgressIndicator();
@@ -46,7 +47,11 @@ class _HomePageState extends State<HomePage> {
                           child: const Text("Change Your Identity")),
                       ElevatedButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, "search");
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        SearchPage(user: snapshot.data!)));
                           },
                           child: const Text("Find Relative"))
                     ],

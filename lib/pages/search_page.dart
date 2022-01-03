@@ -6,7 +6,7 @@ import 'package:mendoza_family_app/widgets/graph_renderer.dart';
 import 'package:mendoza_family_app/widgets/people_picker_page.dart';
 
 class SearchPage extends StatefulWidget {
-  final User user;
+  final FamilyPerson user;
   const SearchPage({Key? key, required this.user}) : super(key: key);
 
   @override
@@ -20,15 +20,12 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    targetPerson = null;
     graphMode = false;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(),
-        body: graphMode ? GraphRenderer(user: widget.user) : SearchOptions());
+    return Scaffold(appBar: AppBar(), body: searchOptions());
   }
 
   Widget personCard(FamilyPerson? person) {
@@ -37,14 +34,20 @@ class _SearchPageState extends State<SearchPage> {
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ListTile(
-              title: Text(widget.user.name),
-              leading: Container(
-                  constraints: BoxConstraints(),
-                  color: Colors.blueAccent,
-                  child: Expanded(child: Text(widget.user.id))),
-            ),
-            person != null ? personTile(person) : Container(),
+            personTile(widget.user),
+            Divider(),
+            person != null
+                ? Column(
+                    children: [
+                      Container(
+                        child: Text(
+                            getRelationshipDescription(widget.user, person)),
+                      ),
+                      Divider(),
+                      personTile(person),
+                    ],
+                  )
+                : Container(),
           ],
         ),
         ButtonBar(
@@ -61,7 +64,7 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget SearchOptions() {
+  Widget searchOptions() {
     return Center(
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         personCard(targetPerson),

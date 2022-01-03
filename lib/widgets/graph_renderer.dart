@@ -4,7 +4,7 @@ import 'package:mendoza_family_app/util/common_util.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors, Matrix4;
 
 class GraphRenderer extends StatefulWidget {
-  final User user;
+  final FamilyPerson user;
   const GraphRenderer({Key? key, required this.user}) : super(key: key);
 
   @override

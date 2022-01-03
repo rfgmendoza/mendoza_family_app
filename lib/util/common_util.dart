@@ -36,15 +36,22 @@ class FamilyPerson {
         deceased: json["deceased"],
         spouseDeceased: json["spouseDeceased"]);
   }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'deceased': deceased,
+        'spouse': spouse,
+        'spouseDeceased': spouseDeceased,
+      };
 }
 
-Future<User?> getCachedUser() async {
+Future<FamilyPerson?> getCachedUser() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  String? username = prefs.getString('userName');
-  String? userid = prefs.getString('userId');
-  if (userid != null && username != null) {
-    return User(userid, username);
+  String? user = prefs.getString('user');
+  if (user != null) {
+    return FamilyPerson.fromJson(json.decode(user));
   } else {
     return null;
   }
@@ -59,16 +66,15 @@ Future<List<dynamic>> readFamilyJson() async {
 Future<bool> setCachedUser(FamilyPerson person) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool success = true;
-  success = success && await prefs.setString('userName', person.name);
-  success = success && await prefs.setString('userId', person.id);
+  success = await prefs.setString("user", jsonEncode(person));
+
   return success;
 }
 
 Future<bool> clearCachedUser() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool success = true;
-  success = success && await prefs.remove('userName');
-  success = success && await prefs.remove('userId');
+  success = success && await prefs.remove('user');
   return success;
 }
 
@@ -101,7 +107,7 @@ List<FamilyPerson> search(String searchText, List items) {
 }
 
 Future<Map<String, FamilyPerson>> generateFamilyTreeData(
-    Graph graph, User user, Map<String, FamilyPerson> memoData) async {
+    Graph graph, FamilyPerson user, Map<String, FamilyPerson> memoData) async {
   if (memoData.isNotEmpty) {
     return memoData;
   }
@@ -134,4 +140,34 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setString("nodeMap", nodes.toString());
   return nodes;
+}
+
+String getRelationshipDescription(
+    FamilyPerson user, FamilyPerson targetPerson) {
+  List<String> userId = user.id.split("");
+  List<String> targetId = targetPerson.id.split("");
+  int generationDiff = userId.length - targetId.length;
+
+  int i = 0;
+  List<int> outList = [];
+  while (i < userId.length && i < targetId.length) {
+    outList.add(userId[i].compareTo(targetId[i]));
+    i++;
+  }
+  if (generationDiff <= 0) {
+    //cousins / siblings / children / niece / nephew
+    if (generationDiff == 0) {}
+  } else if (generationDiff >= 0) {
+    if (outList.every((element) => element == 0)) {
+      if (generationDiff == 1) {
+        return "Parent";
+      } else if (generationDiff == 2) {
+        return "GrandParent";
+      } else {
+        generationDiff = generationDiff - 2;
+      }
+    }
+  } //parents / aunts & uncles / grandparents
+
+  return "unknown";
 }

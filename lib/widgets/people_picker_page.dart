@@ -26,7 +26,7 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
 
     AlertDialog alert = AlertDialog(
         title: const Text("Confirm Selection"),
-        content: const Text("Are you sure this you?"),
+        content: const Text("Are you sure?"),
         actions: [cancelButton, confirmButton]);
     return await showDialog(
         context: context,
