@@ -25,7 +25,9 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(), body: searchOptions());
+    return Scaffold(
+        appBar: AppBar(),
+        body: graphMode ? GraphRenderer(user: widget.user) : searchOptions());
   }
 
   Widget personCard(FamilyPerson? person) {
@@ -40,8 +42,8 @@ class _SearchPageState extends State<SearchPage> {
                 ? Column(
                     children: [
                       Container(
-                        child: Text(
-                            getRelationshipDescription(widget.user, person)),
+                        child: Text(getRelationshipDescription(
+                            widget.user.id, person.id)),
                       ),
                       const Divider(),
                       personTile(person),

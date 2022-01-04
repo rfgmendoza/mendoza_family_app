@@ -142,10 +142,9 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
   return nodes;
 }
 
-String getRelationshipDescription(
-    FamilyPerson user, FamilyPerson targetPerson) {
-  List<String> userId = user.id.split("");
-  List<String> targetId = targetPerson.id.split("");
+String getRelationshipDescription(String user, String targetPerson) {
+  List<String> userId = user.split("");
+  List<String> targetId = targetPerson.split("");
 
   int generationDiff = userId.length - targetId.length;
 
@@ -158,41 +157,101 @@ String getRelationshipDescription(
   }
 
   bool targetIsShorter = generationDiff >= 0;
-  int commonAncestorDepth = outList.indexWhere((element) => element > 0);
+  int commonAncestorDepth = outList.indexWhere((element) => element != 0);
   int shorterIdLength = targetIsShorter ? targetId.length : userId.length;
   int betweenCommonAncestors =
       getDistanceToCommonAncestor(shorterIdLength, commonAncestorDepth);
 
+/* How many people are in between that person and your common ancestor?
+    If it's ZERO, they are your AUNT (or uncle, niece, nephew).
+    If it's 1 OR MORE, they are your COUSIN.
+          1 BETWEEN = 1ST COUSIN
+          2 BETWEEN = 2ND COUSIN
+          3 BETWEEN = 3RD COUSIN, etc.
+    If they ARE your common ancestor, they are your GRANDPARENT. 
+    */
+
   if (commonAncestorDepth == -1) {
     //grandparent of some sort
     //parent?
+//     For GRANDPARENTS, subtract 2 for the NUMBER OF GREATS.
+// 2 generations difference – 2 = 0 greats   GRANDPARENT
+// 3 generations difference – 2 = 1 great   GREAT GRANDPARENT
+// 4 generations difference – 2 = 2 greats   GREAT x2 GRANDPARENT
     if (generationDiff < 0) {
-      returnString = prependGrandAndGreatPrefix("Child", generationDiff);
+      returnString = prependGrandAndGreatPrefix("child", generationDiff.abs());
     } else if (generationDiff >= 1) {
-      if (generationDiff == 1) {
-        returnString = "Parent";
-      } else if (generationDiff >= 2) {
-        returnString = "Grandparent";
-        generationDiff = generationDiff - 2;
-        for (int i = 0; i < generationDiff; i++) {
-          returnString = "Great " + returnString;
-        }
-      }
+      returnString = prependGrandAndGreatPrefix("parent", generationDiff.abs());
     }
   } else if (betweenCommonAncestors == 0) {
     //Uncle/Aunt/ niece/nephew
+    //     For AUNTS (or uncles/nieces/nephews), this will tell you the NUMBER OF WORDS IN YOUR RELATIONSHIP.
+    // 1 word = AUNT (or uncle, niece, nephew)
+    // 2 words = GRAND AUNT
+    // 3 words = GREAT GRAND AUNT
+    // 4 words = GREAT GREAT GRAND AUNT
+    // gendiff < 0 = niece/nephew
+    // gendiff > 0 = aunt/uncle
+    returnString =
+        generationDiff.isNegative ? "Niece / Nephew" : "aunt / uncle";
+    returnString =
+        prependGrandAndGreatPrefix(returnString, generationDiff.abs());
   } else if (betweenCommonAncestors >= 1) {
     // cousins
+    //     For COUSINS, this will tell you the NUMBER OF TIMES REMOVED.
+    // 0 = No "removed"
+    // 1 = 1x removed
+    // 2 = 2x removed
+    // 3 = 3x removed, etc.
+
     returnString = betweenCommonAncestors.toString() +
         ordinal(betweenCommonAncestors) +
-        " Cousin";
+        " Cousin ";
+    switch (generationDiff.abs()) {
+      case 0:
+        break;
+      case 1:
+        returnString += "once removed";
+        break;
+      case 2:
+        returnString += "twice removed";
+        break;
+      case 3:
+        returnString += "thrice removed";
+        break;
+      default:
+        const wordMap = <int, String>{
+          4: "four",
+          5: "five",
+          6: "six",
+          7: "seven",
+          8: "eight",
+          9: "nine",
+          10: "10",
+        };
+        if (generationDiff.abs() <= 10) {
+          returnString += wordMap[generationDiff.abs()]! + " removed";
+        }
+        break;
+    }
   }
 
-  return returnString;
+  return returnString.toUpperCase();
 }
 
 String prependGrandAndGreatPrefix(String title, int generationDiff) {
-  return title;
+  String out = "";
+  while (generationDiff >= 2) {
+    if (generationDiff == 2) {
+      out += "Grand";
+    }
+    if (generationDiff > 2) {
+      out += "Great ";
+    }
+    generationDiff--;
+  }
+  out = out + title;
+  return out;
 }
 
 int getDistanceToCommonAncestor(int shorterIdLength, int commonAncestorDepth) {
