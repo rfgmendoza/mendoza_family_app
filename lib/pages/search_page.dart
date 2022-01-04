@@ -43,7 +43,7 @@ class _SearchPageState extends State<SearchPage> {
                         child: Text(
                             getRelationshipDescription(widget.user, person)),
                       ),
-                      Divider(),
+                      const Divider(),
                       personTile(person),
                     ],
                   )

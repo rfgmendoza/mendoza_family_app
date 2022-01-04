@@ -146,28 +146,77 @@ String getRelationshipDescription(
     FamilyPerson user, FamilyPerson targetPerson) {
   List<String> userId = user.id.split("");
   List<String> targetId = targetPerson.id.split("");
+
   int generationDiff = userId.length - targetId.length;
 
   int i = 0;
   List<int> outList = [];
+  String returnString = "unknown";
   while (i < userId.length && i < targetId.length) {
     outList.add(userId[i].compareTo(targetId[i]));
     i++;
   }
-  if (generationDiff <= 0) {
-    //cousins / siblings / children / niece / nephew
-    if (generationDiff == 0) {}
-  } else if (generationDiff >= 0) {
-    if (outList.every((element) => element == 0)) {
+
+  bool targetIsShorter = generationDiff >= 0;
+  int commonAncestorDepth = outList.indexWhere((element) => element > 0);
+  int shorterIdLength = targetIsShorter ? targetId.length : userId.length;
+  int betweenCommonAncestors =
+      getDistanceToCommonAncestor(shorterIdLength, commonAncestorDepth);
+
+  if (commonAncestorDepth == -1) {
+    //grandparent of some sort
+    //parent?
+    if (generationDiff < 0) {
+      returnString = prependGrandAndGreatPrefix("Child", generationDiff);
+    } else if (generationDiff >= 1) {
       if (generationDiff == 1) {
-        return "Parent";
-      } else if (generationDiff == 2) {
-        return "GrandParent";
-      } else {
+        returnString = "Parent";
+      } else if (generationDiff >= 2) {
+        returnString = "Grandparent";
         generationDiff = generationDiff - 2;
+        for (int i = 0; i < generationDiff; i++) {
+          returnString = "Great " + returnString;
+        }
       }
     }
-  } //parents / aunts & uncles / grandparents
+  } else if (betweenCommonAncestors == 0) {
+    //Uncle/Aunt/ niece/nephew
+  } else if (betweenCommonAncestors >= 1) {
+    // cousins
+    returnString = betweenCommonAncestors.toString() +
+        ordinal(betweenCommonAncestors) +
+        " Cousin";
+  }
 
-  return "unknown";
+  return returnString;
+}
+
+String prependGrandAndGreatPrefix(String title, int generationDiff) {
+  return title;
+}
+
+int getDistanceToCommonAncestor(int shorterIdLength, int commonAncestorDepth) {
+  return shorterIdLength - 1 - commonAncestorDepth;
+}
+
+String ordinal(int number) {
+  if (!(number >= 1 && number <= 100)) {
+    //here you change the range
+    throw Exception('Invalid number');
+  }
+
+  if (number >= 11 && number <= 13) {
+    return 'th';
+  }
+
+  switch (number % 10) {
+    case 1:
+      return 'st';
+    case 2:
+      return 'nd';
+    case 3:
+      return 'rd';
+    default:
+      return 'th';
+  }
 }
