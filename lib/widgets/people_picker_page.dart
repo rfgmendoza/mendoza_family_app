@@ -76,6 +76,10 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
     }
 
     return Scaffold(
+      appBar: AppBar(
+          title: const Text("Find Person"),
+          // actions: [IconButton(onPressed: _searchMode, icon: customIcon)],
+          centerTitle: true),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),

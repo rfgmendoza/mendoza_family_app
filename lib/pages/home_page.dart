@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mendoza_family_app/pages/search_page.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
 import 'package:mendoza_family_app/pages/login_page.dart';
+import 'package:mendoza_family_app/util/common_widgets.dart';
+import 'package:mendoza_family_app/widgets/people_picker_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -18,6 +20,18 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _user = getCachedUser();
+  }
+
+  void _navigateToPeoplePicker(BuildContext context) async {
+    final peoplePickerResult = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => const PeoplePickerPage(),
+            fullscreenDialog: true));
+    bool result = await setCachedUser(peoplePickerResult as FamilyPerson);
+    if (result == true) {
+      Navigator.of(context).pushReplacementNamed("home");
+    }
   }
 
   @override
@@ -37,13 +51,16 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('user: ${snapshot.data!.id} ${snapshot.data!.name}'),
-                      ElevatedButton(
-                          onPressed: () {
-                            clearCachedUser().then((value) =>
-                                Navigator.popAndPushNamed(context, "home"));
-                          },
-                          child: const Text("Change Your Identity")),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8.0),
+                        child: personTile(snapshot.data!,
+                            trailing: ElevatedButton(
+                                onPressed: () {
+                                  _navigateToPeoplePicker(context);
+                                },
+                                child: const Text("Change"))),
+                      ),
                       ElevatedButton(
                           onPressed: () {
                             Navigator.push(

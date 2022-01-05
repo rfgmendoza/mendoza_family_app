@@ -14,12 +14,14 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   late bool graphMode;
+  late FamilyPerson sourcePerson;
   FamilyPerson? targetPerson;
 
   @override
   void initState() {
     super.initState();
     graphMode = false;
+    sourcePerson = widget.user;
   }
 
   @override
@@ -35,13 +37,40 @@ class _SearchPageState extends State<SearchPage> {
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            personTile(widget.user),
+            personTile(sourcePerson,
+                trailing: SizedBox(
+                  width: 50.0,
+                  child: ButtonBar(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            setState(() {
+                              sourcePerson = widget.user;
+                            });
+                          },
+                          icon: const Icon(Icons.cancel_outlined)),
+                      IconButton(
+                          onPressed: () {
+                            _openPeoplePicker().then((value) => {
+                                  if (value != null)
+                                    {
+                                      setState(() {
+                                        sourcePerson = value as FamilyPerson;
+                                      })
+                                    }
+                                });
+                          },
+                          icon: const Icon(Icons.person_add_alt_1))
+                    ],
+                  ),
+                )),
             const Divider(),
             person != null
                 ? Column(
                     children: [
                       Text(getRelationshipDescription(
-                          widget.user.id, person.id)),
+                          sourcePerson.id, person.id)),
                       const Divider(),
                       personTile(person),
                     ],
@@ -54,7 +83,9 @@ class _SearchPageState extends State<SearchPage> {
             ElevatedButton(
               child: const Text("Find Relative"),
               onPressed: () {
-                _openPeoplePicker();
+                _openPeoplePicker().then((value) => setState(() {
+                      targetPerson = value as FamilyPerson?;
+                    }));
               },
             ),
           ],
@@ -78,14 +109,11 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Future<void> _openPeoplePicker() async {
-    final peoplePickerResult = await Navigator.push(
+  Future<Object?> _openPeoplePicker() async {
+    return await Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => const PeoplePickerPage(),
             fullscreenDialog: true));
-    setState(() {
-      targetPerson = peoplePickerResult as FamilyPerson?;
-    });
   }
 }
