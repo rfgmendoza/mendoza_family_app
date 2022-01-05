@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 class CommonScaffold extends StatelessWidget {
   const CommonScaffold({
+    Key? key,
     required String title,
     required Widget child,
   })  : child = child,
-        title = title;
+        title = title,
+        super(key: key);
 
   final Widget child;
   final String title;

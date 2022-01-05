@@ -55,7 +55,7 @@ class _GraphRendererState extends State<GraphRenderer> {
                 ElevatedButton(
                     onPressed: () {
                       Node node = graph.getNodeUsingId(widget.user.id);
-                      final position = Offset(-(node.x), -(node.y));
+                      // final position = Offset(-(node.x), -(node.y));
                       Matrix4 newValue = _controller.value.clone()
                         ..setTranslationRaw(node.x, node.y, 0.0)
                         ..setDiagonal(Vector4(1.0, 1.0, 1.0, 1.0));

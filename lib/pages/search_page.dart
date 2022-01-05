@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:graphview/GraphView.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
 import 'package:mendoza_family_app/util/common_widgets.dart';
 import 'package:mendoza_family_app/widgets/graph_renderer.dart';
@@ -37,14 +36,12 @@ class _SearchPageState extends State<SearchPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             personTile(widget.user),
-            Divider(),
+            const Divider(),
             person != null
                 ? Column(
                     children: [
-                      Container(
-                        child: Text(getRelationshipDescription(
-                            widget.user.id, person.id)),
-                      ),
+                      Text(getRelationshipDescription(
+                          widget.user.id, person.id)),
                       const Divider(),
                       personTile(person),
                     ],

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mendoza_family_app/pages/search_page.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mendoza_family_app/pages/login_page.dart';
 
 class HomePage extends StatefulWidget {
