@@ -38,33 +38,26 @@ class _SearchPageState extends State<SearchPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             personTile(sourcePerson,
-                trailing: SizedBox(
-                  width: 50.0,
-                  child: ButtonBar(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                          onPressed: () {
-                            setState(() {
-                              sourcePerson = widget.user;
-                            });
-                          },
-                          icon: const Icon(Icons.cancel_outlined)),
-                      IconButton(
-                          onPressed: () {
-                            _openPeoplePicker().then((value) => {
-                                  if (value != null)
-                                    {
-                                      setState(() {
-                                        sourcePerson = value as FamilyPerson;
-                                      })
-                                    }
-                                });
-                          },
-                          icon: const Icon(Icons.person_add_alt_1))
-                    ],
-                  ),
-                )),
+                trailing: sourcePerson.id != widget.user.id
+                    ? IconButton(
+                        onPressed: () {
+                          setState(() {
+                            sourcePerson = widget.user;
+                          });
+                        },
+                        icon: const Icon(Icons.person_off_rounded))
+                    : IconButton(
+                        onPressed: () {
+                          _openPeoplePicker().then((value) => {
+                                if (value != null)
+                                  {
+                                    setState(() {
+                                      sourcePerson = value as FamilyPerson;
+                                    })
+                                  }
+                              });
+                        },
+                        icon: const Icon(Icons.person_search_rounded))),
             const Divider(),
             person != null
                 ? Column(
@@ -72,22 +65,33 @@ class _SearchPageState extends State<SearchPage> {
                       Text(getRelationshipDescription(
                           sourcePerson.id, person.id)),
                       const Divider(),
-                      personTile(person),
+                      personTile(
+                        person,
+                        trailing: IconButton(
+                            onPressed: () {
+                              _openPeoplePicker().then((value) => {
+                                    if (value != null)
+                                      {
+                                        setState(() {
+                                          sourcePerson = value as FamilyPerson;
+                                        })
+                                      }
+                                  });
+                            },
+                            icon: const Icon(Icons.person_search_rounded)),
+                      )
                     ],
                   )
-                : Container(),
-          ],
-        ),
-        ButtonBar(
-          children: [
-            ElevatedButton(
-              child: const Text("Find Relative"),
-              onPressed: () {
-                _openPeoplePicker().then((value) => setState(() {
-                      targetPerson = value as FamilyPerson?;
-                    }));
-              },
-            ),
+                : Center(
+                    child: IconButton(
+                      icon: const Icon(Icons.person_add_alt_outlined),
+                      onPressed: () {
+                        _openPeoplePicker().then((value) => setState(() {
+                              targetPerson = value as FamilyPerson?;
+                            }));
+                      },
+                    ),
+                  )
           ],
         )
       ]),
