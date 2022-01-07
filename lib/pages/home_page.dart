@@ -52,15 +52,14 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8.0),
-                        child: personTile(snapshot.data!,
-                            trailing: ElevatedButton(
-                                onPressed: () {
-                                  _navigateToPeoplePicker(context);
-                                },
-                                child: const Text("Change"))),
-                      ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 8.0),
+                          child: personTile(snapshot.data!,
+                              trailing: IconButton(
+                                  onPressed: () {
+                                    _navigateToPeoplePicker(context);
+                                  },
+                                  icon: const Icon(Icons.cancel)))),
                       ElevatedButton(
                           onPressed: () {
                             Navigator.push(
@@ -69,7 +68,7 @@ class _HomePageState extends State<HomePage> {
                                     builder: (context) =>
                                         SearchPage(user: snapshot.data!)));
                           },
-                          child: const Text("Find Relative"))
+                          child: const Text("Search For A Relative"))
                     ],
                   ),
                 );

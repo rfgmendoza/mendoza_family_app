@@ -115,7 +115,13 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
   List<dynamic> templist = [items[familyGroup]];
   Queue itemQueue = Queue.from(templist);
   // Queue itemQueue = Queue.from(items);
-  Map<String, FamilyPerson> nodes = {};
+  Map<String, FamilyPerson> nodes = await fetchNodeMap(items);
+  if (nodes.isNotEmpty) {
+    //TODO read graph data
+    // decode
+    // add to graph
+    // return nodes;
+  }
   while (itemQueue.isNotEmpty) {
     var rawData = itemQueue.removeFirst();
     String id = rawData["id"];
@@ -137,8 +143,32 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
     }
   }
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setString("nodeMap", nodes.toString());
+  await prefs.setString("nodeMap", json.encode(nodes));
+  // TODO: store graph nodes
+  // TODO: store graph edge
+  // TODO: store entire graph object instead?
+  // await prefs.setString("graphEdges", json.encode(graph.));
+  // graph.toJson()
+
   return nodes;
+}
+
+Future<Map<String, FamilyPerson>> fetchNodeMap(List<dynamic> items) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var response = prefs.getString("nodeMap");
+  if (response != null) {
+    return json.decode(response) as Map<String, FamilyPerson>;
+  }
+  return {};
+}
+
+Future<Map<String, FamilyPerson>> fetchNodeMap(List<dynamic> items) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  var response = prefs.getString("nodeMap");
+  if (response != null) {
+    return json.decode(response) as Map<String, FamilyPerson>;
+  }
+  return {};
 }
 
 String getRelationshipDescription(String user, String targetPerson) {
