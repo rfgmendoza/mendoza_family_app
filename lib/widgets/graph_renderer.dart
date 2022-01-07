@@ -152,6 +152,7 @@ class _GraphRendererState extends State<GraphRenderer> {
 
   GraphView renderInnerGraph(
       AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
+    // TODO only show graph between two family members
     return GraphView(
       graph: graph,
       algorithm: BuchheimWalkerAlgorithm(builder, TreeEdgeRenderer(builder)),

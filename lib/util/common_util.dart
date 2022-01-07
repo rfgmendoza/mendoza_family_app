@@ -123,6 +123,7 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
     // return nodes;
   }
   while (itemQueue.isNotEmpty) {
+    // TODO: do not parse if cache values exist
     var rawData = itemQueue.removeFirst();
     String id = rawData["id"];
     Node node = Node.Id(id);
