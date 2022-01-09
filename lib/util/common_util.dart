@@ -110,13 +110,18 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
   if (memoData.isNotEmpty) {
     return memoData;
   }
+
+  SharedPreferences prefs = await SharedPreferences.getInstance();
   List<dynamic> items = await readFamilyJson();
   int familyGroup = int.parse(user.id[0]) - 1;
   List<dynamic> templist = [items[familyGroup]];
   Queue itemQueue = Queue.from(templist);
   // Queue itemQueue = Queue.from(items);
-  Map<String, FamilyPerson> nodes = await fetchNodeMap(items);
+  Map<String, FamilyPerson> nodes = await fetchNodeMap(prefs, familyGroup);
   if (nodes.isNotEmpty) {
+    Map<String, List<Object>> graphCache = await fetchGraph(prefs, familyGroup);
+    graph.addNodes(graphCache["nodes"] as List<Node>);
+    graph.addEdges(graphCache["edges"] as List<Edge>);
     //TODO read graph data
     // decode
     // add to graph
@@ -143,8 +148,10 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
       graph.addEdge(node, cNode);
     }
   }
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setString("nodeMap", json.encode(nodes));
+
+  prefs.setString("nodeMap" + familyGroup.toString(), json.encode(nodes));
+  prefs.setString("graphCache" + familyGroup.toString(), graph.toJson());
+
   // TODO: store graph nodes
   // TODO: store graph edge
   // TODO: store entire graph object instead?
@@ -154,20 +161,25 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
   return nodes;
 }
 
-Future<Map<String, FamilyPerson>> fetchNodeMap(List<dynamic> items) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var response = prefs.getString("nodeMap");
+Future<Map<String, List<Object>>> fetchGraph(
+    SharedPreferences prefs, int familyGroup) async {
+  var response = prefs.getString("graphCache");
   if (response != null) {
-    return json.decode(response) as Map<String, FamilyPerson>;
+    return json.decode(response) as Map<String, List<Object>>;
   }
   return {};
 }
 
-Future<Map<String, FamilyPerson>> fetchNodeMap(List<dynamic> items) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var response = prefs.getString("nodeMap");
+Future<Map<String, FamilyPerson>> fetchNodeMap(
+    SharedPreferences prefs, int familyGroup) async {
+  var response = prefs.getString("nodeMap" + familyGroup.toString());
   if (response != null) {
-    return json.decode(response) as Map<String, FamilyPerson>;
+    return json.decode(response, reviver: (k, v) {
+      if (v is Map) {
+        return FamilyPerson.fromJson(v as Map<String, dynamic>);
+      }
+      return v;
+    });
   }
   return {};
 }
@@ -257,7 +269,7 @@ String getRelationshipDescription(String user, String targetPerson) {
           7: "seven",
           8: "eight",
           9: "nine",
-          10: "10",
+          10: "ten",
         };
         if (generationDiff.abs() <= 10) {
           returnString += wordMap[generationDiff.abs()]! + " removed";
