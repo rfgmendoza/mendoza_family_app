@@ -1,4 +1,5 @@
 import 'package:graphview/GraphView.dart';
+import 'package:mendoza_family_app/util/family_tree.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:collection';
 import 'package:flutter/services.dart';
@@ -107,26 +108,29 @@ List<FamilyPerson> search(String searchText, List items) {
 
 Future<Map<String, FamilyPerson>> generateFamilyTreeData(
     Graph graph, FamilyPerson user, Map<String, FamilyPerson> memoData) async {
+  final stopWatch = Stopwatch()..start();
   if (memoData.isNotEmpty) {
     return memoData;
   }
-
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  List<dynamic> items = await readFamilyJson();
   int familyGroup = int.parse(user.id[0]) - 1;
+  Map<String, FamilyPerson> nodes = {};
+  /**begin scratch */
+  FamilyTree familyTree = FamilyTree();
+  if (familyTree.hasFamilyGraphData(familyGroup)) {
+    nodes = familyTree.nodeMap[familyGroup]!;
+    graph.addNodes(familyTree.graphNodesMap[familyGroup]!);
+    graph.addEdges(familyTree.graphEdgesMap[familyGroup]!);
+    print(stopWatch.elapsed);
+    stopWatch.stop();
+    return nodes;
+  }
+  familyTree.initFamily();
+
+  /** end scratch */
+
+  List<dynamic> items = await readFamilyJson();
   List<dynamic> templist = [items[familyGroup]];
   Queue itemQueue = Queue.from(templist);
-  // Queue itemQueue = Queue.from(items);
-  Map<String, FamilyPerson> nodes = await fetchNodeMap(prefs, familyGroup);
-  if (nodes.isNotEmpty) {
-    Map<String, List<Object>> graphCache = await fetchGraph(prefs, familyGroup);
-    graph.addNodes(graphCache["nodes"] as List<Node>);
-    graph.addEdges(graphCache["edges"] as List<Edge>);
-    //TODO read graph data
-    // decode
-    // add to graph
-    // return nodes;
-  }
   while (itemQueue.isNotEmpty) {
     // TODO: do not parse if cache values exist
     var rawData = itemQueue.removeFirst();
@@ -149,15 +153,11 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
     }
   }
 
-  prefs.setString("nodeMap" + familyGroup.toString(), json.encode(nodes));
-  prefs.setString("graphCache" + familyGroup.toString(), graph.toJson());
-
-  // TODO: store graph nodes
-  // TODO: store graph edge
-  // TODO: store entire graph object instead?
-  // await prefs.setString("graphEdges", json.encode(graph.));
-  // graph.toJson()
-
+  familyTree.nodeMap[familyGroup] = nodes;
+  familyTree.graphEdgesMap[familyGroup] = graph.edges;
+  familyTree.graphNodesMap[familyGroup] = graph.nodes;
+  print(stopWatch.elapsed);
+  stopWatch.stop();
   return nodes;
 }
 
