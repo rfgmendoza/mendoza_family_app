@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
 
 class PeoplePickerPage extends StatefulWidget {
-  const PeoplePickerPage({Key? key}) : super(key: key);
+  final String? familyGroup;
+  const PeoplePickerPage({Key? key, this.familyGroup}) : super(key: key);
 
   @override
   _PeoplePickerPageState createState() => _PeoplePickerPageState();
@@ -63,7 +64,9 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
     if (_items.isEmpty) {
       readFamilyJson().then((value) => {
             setState(() {
-              _items = value;
+              _items = widget.familyGroup != null
+                  ? [value[int.parse(widget.familyGroup!) - 1]]
+                  : value;
             })
           });
     }

@@ -107,21 +107,17 @@ List<FamilyPerson> search(String searchText, List items) {
 }
 
 Future<Map<String, FamilyPerson>> generateFamilyTreeData(
-    Graph graph, FamilyPerson user, Map<String, FamilyPerson> memoData) async {
-  final stopWatch = Stopwatch()..start();
-  if (memoData.isNotEmpty) {
-    return memoData;
-  }
+    Graph graph, FamilyPerson user, FamilyPerson? targetPerson) async {
   int familyGroup = int.parse(user.id[0]) - 1;
   Map<String, FamilyPerson> nodes = {};
+  String targetId = targetPerson?.id ?? "";
   /**begin scratch */
   FamilyTree familyTree = FamilyTree();
-  if (familyTree.hasFamilyGraphData(familyGroup)) {
+  if (familyTree.hasFamilyGraphData(familyGroup) && targetId != "") {
     nodes = familyTree.nodeMap[familyGroup]!;
+
     graph.addNodes(familyTree.graphNodesMap[familyGroup]!);
     graph.addEdges(familyTree.graphEdgesMap[familyGroup]!);
-    print(stopWatch.elapsed);
-    stopWatch.stop();
     return nodes;
   }
   familyTree.initFamily();
@@ -135,6 +131,12 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
     // TODO: do not parse if cache values exist
     var rawData = itemQueue.removeFirst();
     String id = rawData["id"];
+    // if (user.id.contains(id) || targetId.contains(id)) {
+    //   //todo add children before continue
+    //   continue;
+    // } else {
+    //   print(id);
+    // }
     Node node = Node.Id(id);
     nodes.putIfAbsent(id, () => FamilyPerson.fromJson(rawData));
     List<dynamic> children = rawData["children"] ?? [];
@@ -152,14 +154,14 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
       graph.addEdge(node, cNode);
     }
   }
-
-  familyTree.nodeMap[familyGroup] = nodes;
-  familyTree.graphEdgesMap[familyGroup] = graph.edges;
-  familyTree.graphNodesMap[familyGroup] = graph.nodes;
-  print(stopWatch.elapsed);
-  stopWatch.stop();
+  if (targetId != "") {
+    familyTree.nodeMap[familyGroup] = nodes;
+    familyTree.graphEdgesMap[familyGroup] = graph.edges;
+    familyTree.graphNodesMap[familyGroup] = graph.nodes;
+  }
   return nodes;
 }
+// create function to add children?
 
 Future<Map<String, List<Object>>> fetchGraph(
     SharedPreferences prefs, int familyGroup) async {
@@ -193,6 +195,9 @@ String getRelationshipDescription(String user, String targetPerson) {
   int i = 0;
   List<int> outList = [];
   String returnString = "unknown";
+  if (user == targetPerson) {
+    returnString = "same person";
+  }
   while (i < userId.length && i < targetId.length) {
     outList.add(userId[i].compareTo(targetId[i]));
     i++;

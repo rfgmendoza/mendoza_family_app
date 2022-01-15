@@ -28,7 +28,9 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(),
-        body: graphMode ? GraphRenderer(user: widget.user) : searchOptions());
+        body: graphMode
+            ? GraphRenderer(user: sourcePerson, targetUser: targetPerson)
+            : searchOptions());
   }
 
   Widget personCard(FamilyPerson? person) {
@@ -48,14 +50,15 @@ class _SearchPageState extends State<SearchPage> {
                         icon: const Icon(Icons.person_off_rounded))
                     : IconButton(
                         onPressed: () {
-                          _openPeoplePicker().then((value) => {
-                                if (value != null)
-                                  {
-                                    setState(() {
-                                      sourcePerson = value as FamilyPerson;
-                                    })
-                                  }
-                              });
+                          _openPeoplePicker(targetPerson?.id[0])
+                              .then((value) => {
+                                    if (value != null)
+                                      {
+                                        setState(() {
+                                          sourcePerson = value as FamilyPerson;
+                                        })
+                                      }
+                                  });
                         },
                         icon: const Icon(Icons.person_search_rounded))),
             const Divider(),
@@ -69,14 +72,16 @@ class _SearchPageState extends State<SearchPage> {
                         person,
                         trailing: IconButton(
                             onPressed: () {
-                              _openPeoplePicker().then((value) => {
-                                    if (value != null)
-                                      {
-                                        setState(() {
-                                          sourcePerson = value as FamilyPerson;
-                                        })
-                                      }
-                                  });
+                              _openPeoplePicker(sourcePerson.id[0])
+                                  .then((value) => {
+                                        if (value != null)
+                                          {
+                                            setState(() {
+                                              sourcePerson =
+                                                  value as FamilyPerson;
+                                            })
+                                          }
+                                      });
                             },
                             icon: const Icon(Icons.person_search_rounded)),
                       )
@@ -86,9 +91,10 @@ class _SearchPageState extends State<SearchPage> {
                     child: IconButton(
                       icon: const Icon(Icons.person_add_alt_outlined),
                       onPressed: () {
-                        _openPeoplePicker().then((value) => setState(() {
-                              targetPerson = value as FamilyPerson?;
-                            }));
+                        _openPeoplePicker(sourcePerson.id[0])
+                            .then((value) => setState(() {
+                                  targetPerson = value as FamilyPerson?;
+                                }));
                       },
                     ),
                   )
@@ -113,11 +119,11 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Future<Object?> _openPeoplePicker() async {
+  Future<Object?> _openPeoplePicker(String? familyGroup) async {
     return await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => const PeoplePickerPage(),
+            builder: (context) => PeoplePickerPage(familyGroup: familyGroup),
             fullscreenDialog: true));
   }
 }

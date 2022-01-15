@@ -5,7 +5,9 @@ import 'package:vector_math/vector_math_64.dart' hide Colors, Matrix4;
 
 class GraphRenderer extends StatefulWidget {
   final FamilyPerson user;
-  const GraphRenderer({Key? key, required this.user}) : super(key: key);
+  final FamilyPerson? targetUser;
+  const GraphRenderer({Key? key, required this.user, this.targetUser})
+      : super(key: key);
 
   @override
   _GraphRendererState createState() => _GraphRendererState();
@@ -31,7 +33,8 @@ class _GraphRendererState extends State<GraphRenderer> {
       mainAxisSize: MainAxisSize.max,
       children: [
         FutureBuilder(
-            future: generateFamilyTreeData(graph, widget.user, graphDataMemo),
+            future:
+                generateFamilyTreeData(graph, widget.user, widget.targetUser),
             builder:
                 (context, AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
               if (snapshot.connectionState != ConnectionState.done ||
@@ -53,17 +56,7 @@ class _GraphRendererState extends State<GraphRenderer> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
-                    onPressed: () {
-                      Node node = graph.getNodeUsingId(widget.user.id);
-                      // final position = Offset(-(node.x), -(node.y));
-                      Matrix4 newValue = _controller.value.clone()
-                        ..setTranslationRaw(node.x, node.y, 0.0)
-                        ..setDiagonal(Vector4(1.0, 1.0, 1.0, 1.0));
-                      setState(() {
-                        _controller.value = newValue;
-                      });
-                    },
-                    child: const Text("Center on user")),
+                    onPressed: () {}, child: const Text("Center on user")),
                 ElevatedButton(
                     onPressed: () {
                       setState(() {
@@ -97,13 +90,17 @@ class _GraphRendererState extends State<GraphRenderer> {
 
   Widget nodeContents(FamilyPerson a) {
     bool isUser = a.id == widget.user.id;
-
+    bool isTarget = a.id == widget.targetUser?.id;
     return SizedBox(
       width: _orientation == BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT
           ? 300
           : 200,
       child: Card(
-          color: !isUser ? Colors.white54 : Colors.blueAccent,
+          color: isUser
+              ? Colors.blueAccent
+              : isTarget
+                  ? Colors.greenAccent
+                  : Colors.white54,
           child: ListTile(
               leading: Text(a.id),
               title: Text(
@@ -127,7 +124,7 @@ class _GraphRendererState extends State<GraphRenderer> {
       child: Container(
           padding: const EdgeInsets.all(1),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: a != null ? nodeContents(a) : const Text("?")),
     );
