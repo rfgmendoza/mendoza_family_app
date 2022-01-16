@@ -113,7 +113,7 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
   String targetId = targetPerson?.id ?? "";
   /**begin scratch */
   FamilyTree familyTree = FamilyTree();
-  if (familyTree.hasFamilyGraphData(familyGroup) && targetId != "") {
+  if (familyTree.hasFamilyGraphData(familyGroup) && targetId == "") {
     nodes = familyTree.nodeMap[familyGroup]!;
 
     graph.addNodes(familyTree.graphNodesMap[familyGroup]!);
@@ -131,12 +131,6 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
     // TODO: do not parse if cache values exist
     var rawData = itemQueue.removeFirst();
     String id = rawData["id"];
-    // if (user.id.contains(id) || targetId.contains(id)) {
-    //   //todo add children before continue
-    //   continue;
-    // } else {
-    //   print(id);
-    // }
     Node node = Node.Id(id);
     nodes.putIfAbsent(id, () => FamilyPerson.fromJson(rawData));
     List<dynamic> children = rawData["children"] ?? [];
@@ -148,13 +142,15 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
         noIdChildCount++;
         element["id"] = cId;
       }
-      Node cNode = Node.Id(cId);
-      nodes.putIfAbsent(id, () => FamilyPerson.fromJson(rawData));
-      itemQueue.add(element);
-      graph.addEdge(node, cNode);
+      if (user.id.contains(cId) || targetId.contains(cId) || targetId == "") {
+        Node cNode = Node.Id(cId);
+        nodes.putIfAbsent(id, () => FamilyPerson.fromJson(rawData));
+        itemQueue.add(element);
+        graph.addEdge(node, cNode);
+      }
     }
   }
-  if (targetId != "") {
+  if (targetId == "") {
     familyTree.nodeMap[familyGroup] = nodes;
     familyTree.graphEdgesMap[familyGroup] = graph.edges;
     familyTree.graphNodesMap[familyGroup] = graph.nodes;

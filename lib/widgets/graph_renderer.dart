@@ -22,6 +22,15 @@ class _GraphRendererState extends State<GraphRenderer> {
   final TransformationController _controller = TransformationController();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _orientation = widget.targetUser != null
+        ? BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM
+        : BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
+  }
+
+  @override
   Widget build(BuildContext context) {
     builder
       ..siblingSeparation = (10)
