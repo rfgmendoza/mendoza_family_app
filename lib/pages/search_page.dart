@@ -27,7 +27,16 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+            leading: graphMode
+                ? IconButton(
+                    onPressed: () {
+                      setState(() {
+                        graphMode = false;
+                      });
+                    },
+                    icon: const Icon(Icons.close))
+                : null),
         body: graphMode
             ? GraphRenderer(user: sourcePerson, targetUser: targetPerson)
             : searchOptions());
