@@ -67,38 +67,55 @@ class _GraphRendererState extends State<GraphRenderer> {
     );
   }
 
+  void handleMenuSelect(Object? value) {
+    switch (value) {
+      case "orient_vertical":
+        setState(() {
+          _orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
+        });
+        break;
+      case "orient_horizontal":
+        setState(() {
+          _orientation = BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
+        });
+        break;
+      default:
+        print(value);
+    }
+  }
+
   List<Widget> buttonRow() {
     return [
-      TextButton(
+      IconButton(
           onPressed: () {
             setState(() {
               _controller.value = Matrix4.identity();
             });
           },
-          child: const Text(
-            "Reset",
-            style: TextStyle(color: Colors.white),
-          )),
-      TextButton(
-          onPressed: () {
-            setState(() {
-              _orientation = BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
-            });
-          },
-          child: const Text(
-            "Horizontal",
-            style: TextStyle(color: Colors.white),
-          )),
-      TextButton(
-          onPressed: () {
-            setState(() {
-              _orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
-            });
-          },
-          child: const Text(
-            "Vertical",
-            style: TextStyle(color: Colors.white),
-          )),
+          icon: const Icon(Icons.control_camera)),
+      PopupMenuButton(
+        onSelected: (value) => handleMenuSelect(value),
+        icon: const Icon(Icons.more_vert),
+        itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+          const PopupMenuItem(
+            value: "orient_horizontal",
+            child: ListTile(
+              leading: Icon(Icons.text_rotation_none),
+              title: Text('Horizontal'),
+            ),
+          ),
+          const PopupMenuItem(
+            value: "orient_vertical",
+            child: ListTile(
+              leading: Icon(Icons.text_rotate_vertical),
+              title: Text('Vertical'),
+            ),
+          ),
+          const PopupMenuDivider(),
+          const PopupMenuItem(value: "setting_A", child: Text('setting_A')),
+          const PopupMenuItem(value: "setting_A", child: Text('setting_B')),
+        ],
+      ),
     ];
   }
 
