@@ -13,33 +13,18 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  late bool graphMode;
   late FamilyPerson sourcePerson;
   FamilyPerson? targetPerson;
 
   @override
   void initState() {
     super.initState();
-    graphMode = false;
     sourcePerson = widget.user;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            leading: graphMode
-                ? IconButton(
-                    onPressed: () {
-                      setState(() {
-                        graphMode = false;
-                      });
-                    },
-                    icon: const Icon(Icons.close))
-                : null),
-        body: graphMode
-            ? GraphRenderer(user: sourcePerson, targetUser: targetPerson)
-            : searchOptions());
+    return Scaffold(appBar: AppBar(), body: searchOptions());
   }
 
   Widget personCard(FamilyPerson? person) {
@@ -119,9 +104,11 @@ class _SearchPageState extends State<SearchPage> {
         personCard(targetPerson),
         ElevatedButton(
             onPressed: () {
-              setState(() {
-                graphMode = true;
-              });
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => GraphRenderer(
+                          user: widget.user, targetUser: targetPerson)));
             },
             child: const Text("See Full Family Tree")),
       ]),

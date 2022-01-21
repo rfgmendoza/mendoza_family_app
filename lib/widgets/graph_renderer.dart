@@ -23,7 +23,6 @@ class _GraphRendererState extends State<GraphRenderer> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _orientation = widget.targetUser != null
         ? BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM
@@ -38,63 +37,69 @@ class _GraphRendererState extends State<GraphRenderer> {
       ..subtreeSeparation = (10)
       ..orientation = (_orientation);
 
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        FutureBuilder(
-            future:
-                generateFamilyTreeData(graph, widget.user, widget.targetUser),
-            builder:
-                (context, AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
-              if (snapshot.connectionState != ConnectionState.done ||
-                  !snapshot.hasData) {
-                return const Expanded(
-                    child: Center(child: CircularProgressIndicator()));
-              } else {
-                if (snapshot.hasError) {
-                  return Expanded(child: Text('Error: ${snapshot.error}'));
+    return Scaffold(
+      appBar: AppBar(
+        actions: buttonRow(),
+      ),
+      body: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          FutureBuilder(
+              future:
+                  generateFamilyTreeData(graph, widget.user, widget.targetUser),
+              builder:
+                  (context, AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
+                if (snapshot.connectionState != ConnectionState.done ||
+                    !snapshot.hasData) {
+                  return const Expanded(
+                      child: Center(child: CircularProgressIndicator()));
                 } else {
-                  graphDataMemo = snapshot.data!;
-                  return renderGraph(snapshot);
+                  if (snapshot.hasError) {
+                    return Expanded(child: Text('Error: ${snapshot.error}'));
+                  } else {
+                    graphDataMemo = snapshot.data!;
+                    return renderGraph(snapshot);
+                  }
                 }
-              }
-            }),
-        Row(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                    onPressed: () {}, child: const Text("Center on user")),
-                ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _controller.value = Matrix4.identity();
-                      });
-                    },
-                    child: const Text("Reset")),
-                ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _orientation =
-                            BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
-                      });
-                    },
-                    child: const Text("Horizontal")),
-                ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _orientation =
-                            BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
-                      });
-                    },
-                    child: const Text("Vertical"))
-              ],
-            ),
-          ],
-        )
-      ],
+              }),
+        ],
+      ),
     );
+  }
+
+  List<Widget> buttonRow() {
+    return [
+      TextButton(
+          onPressed: () {
+            setState(() {
+              _controller.value = Matrix4.identity();
+            });
+          },
+          child: const Text(
+            "Reset",
+            style: TextStyle(color: Colors.white),
+          )),
+      TextButton(
+          onPressed: () {
+            setState(() {
+              _orientation = BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
+            });
+          },
+          child: const Text(
+            "Horizontal",
+            style: TextStyle(color: Colors.white),
+          )),
+      TextButton(
+          onPressed: () {
+            setState(() {
+              _orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
+            });
+          },
+          child: const Text(
+            "Vertical",
+            style: TextStyle(color: Colors.white),
+          )),
+    ];
   }
 
   Widget nodeContents(FamilyPerson a) {
