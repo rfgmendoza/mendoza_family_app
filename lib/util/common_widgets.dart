@@ -5,7 +5,7 @@ import 'common_util.dart';
 Widget personTile(FamilyPerson person, {Widget? trailing}) {
   return ListTile(
       title: Text(
-        person.name,
+        person.name.toUpperCase(),
         textAlign: TextAlign.start,
       ),
       subtitle: Padding(

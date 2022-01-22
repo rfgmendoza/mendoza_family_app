@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mendoza_family_app/pages/home_page.dart';
 import 'package:mendoza_family_app/pages/login_page.dart';
+import 'package:mendoza_family_app/pages/search_page.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
 import 'package:mendoza_family_app/widgets/common_scaffold.dart';
 
@@ -37,15 +38,14 @@ class MendozaFamilyApp extends StatelessWidget {
   Widget tryLogin() {
     return FutureBuilder(
       future: getCachedUser(),
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<FamilyPerson?> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             return const CircularProgressIndicator();
           default:
             if (snapshot.hasData) {
               if (snapshot.data != null) {
-                return const CommonScaffold(
-                    title: "Mendoza Family Book", child: HomePage());
+                return SearchPage(user: snapshot.data!);
               }
             }
             return const CommonScaffold(
