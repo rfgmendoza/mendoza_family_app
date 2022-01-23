@@ -51,8 +51,15 @@ class _GraphRendererState extends State<GraphRenderer> {
                   (context, AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
                 if (snapshot.connectionState != ConnectionState.done ||
                     !snapshot.hasData) {
-                  return const Expanded(
-                      child: Center(child: CircularProgressIndicator()));
+                  return Expanded(
+                      child: Center(
+                          child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Loading...'),
+                      Image(image: AssetImage('assets/MendozaLogo.png')),
+                    ],
+                  )));
                 } else {
                   if (snapshot.hasError) {
                     return Expanded(child: Text('Error: ${snapshot.error}'));
@@ -79,6 +86,12 @@ class _GraphRendererState extends State<GraphRenderer> {
           _orientation = BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
         });
         break;
+      case "setting_full_tree":
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => GraphRenderer(user: widget.user)));
+        break;
       default:
         print(value);
     }
@@ -93,6 +106,17 @@ class _GraphRendererState extends State<GraphRenderer> {
             });
           },
           icon: const Icon(Icons.control_camera)),
+      widget.targetUser != null
+          ? IconButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            GraphRenderer(user: widget.user)));
+              },
+              icon: const Icon(Icons.zoom_out_map))
+          : Container(),
       PopupMenuButton(
         onSelected: (value) => handleMenuSelect(value),
         icon: const Icon(Icons.more_vert),
@@ -112,7 +136,6 @@ class _GraphRendererState extends State<GraphRenderer> {
             ),
           ),
           const PopupMenuDivider(),
-          const PopupMenuItem(value: "setting_A", child: Text('setting_A')),
           const PopupMenuItem(value: "setting_A", child: Text('setting_B')),
         ],
       ),
@@ -124,8 +147,8 @@ class _GraphRendererState extends State<GraphRenderer> {
     bool isTarget = a.id == widget.targetUser?.id;
     return SizedBox(
       width: _orientation == BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT
-          ? 300
-          : 200,
+          ? 400
+          : 250,
       child: Card(
           color: isUser
               ? Colors.blueAccent
@@ -133,10 +156,17 @@ class _GraphRendererState extends State<GraphRenderer> {
                   ? Colors.greenAccent
                   : Colors.white54,
           child: ListTile(
+              onTap: () {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            GraphRenderer(user: widget.user, targetUser: a)));
+              },
               leading: Text(a.id),
               title: Text(
                 a.name,
-                maxLines: 2,
+                maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: Text(
@@ -148,17 +178,12 @@ class _GraphRendererState extends State<GraphRenderer> {
   }
 
   Widget rectangleWidget(FamilyPerson? a) {
-    return InkWell(
-      onTap: () {
-        print('clicked');
-      },
-      child: Container(
-          padding: const EdgeInsets.all(1),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: a != null ? nodeContents(a) : const Text("?")),
-    );
+    return Container(
+        padding: const EdgeInsets.all(1),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: a != null ? nodeContents(a) : const Text("?"));
   }
 
   Widget renderGraph(AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {

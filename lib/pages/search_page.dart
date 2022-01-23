@@ -142,7 +142,9 @@ class _SearchPageState extends State<SearchPage> {
                           builder: (context) => GraphRenderer(
                               user: widget.user, targetUser: targetPerson)));
                 },
-                child: const Text("See Full Family Tree")),
+                child: Text(targetPerson != null
+                    ? "See Relationship Tree"
+                    : "See Full Family Tree")),
           ),
           Container(height: bodyHeight * 0.1)
         ]),
