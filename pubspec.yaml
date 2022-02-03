@@ -40,6 +40,7 @@ dependencies:
       url: https://github.com/appdev/FlutterToast.git
   graphview: ^1.1.1
   vector_math: ^2.1.1
+  shared_preferences_ios: ^2.0.9
 
 dev_dependencies:
   flutter_test:
