@@ -38,7 +38,6 @@ class FamilyTree {
       await initFamily();
     }
     List.generate(7, (index) => index).forEach((element) {
-      print(element.toString() + 'begin');
       buildFamilyGraph(element);
     });
   }
@@ -75,8 +74,5 @@ class FamilyTree {
       graphEdgesMap[familyId] = edges;
       nodeMap[familyId] = nodes;
     }
-    // ignore: avoid_print
-
-    print(familyId.toString() + 'done');
   }
 }

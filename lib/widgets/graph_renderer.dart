@@ -24,9 +24,7 @@ class _GraphRendererState extends State<GraphRenderer> {
   @override
   void initState() {
     super.initState();
-    _orientation = widget.targetUser != null
-        ? BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM
-        : BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
+    _orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
   }
 
   @override
@@ -39,6 +37,7 @@ class _GraphRendererState extends State<GraphRenderer> {
 
     return Scaffold(
       appBar: AppBar(
+        title: Text(_controller.value.getTranslation().xy.toString()),
         actions: buttonRow(),
       ),
       body: Column(
@@ -55,7 +54,7 @@ class _GraphRendererState extends State<GraphRenderer> {
                       child: Center(
                           child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                    children: const [
                       Text('Loading...'),
                       Image(image: AssetImage('assets/MendozaLogo.png')),
                     ],
@@ -74,12 +73,31 @@ class _GraphRendererState extends State<GraphRenderer> {
     );
   }
 
+  Matrix4 resetView() {
+    return focusView(graph.getNodeAtPosition(0).key!.value.toString());
+  }
+
+  Matrix4 focusView(String id) {
+    final startNode = graph.nodes.firstWhere(
+      (node) => node.key!.value == id,
+    );
+    double scale = 1.0;
+    return _controller.value.clone()
+      ..setDiagonal(Vector4(scale, scale, scale, 1.0))
+      ..setColumn(
+          3,
+          Vector4(-(startNode.x - startNode.width / 3),
+              -(startNode.y - (startNode.height) * id.length), 0.0, 1.0));
+  }
+
   void handleMenuSelect(Object? value) {
     switch (value) {
       case "orient_vertical":
-        setState(() {
-          _orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
-        });
+        setState(
+          () {
+            _orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
+          },
+        );
         break;
       case "orient_horizontal":
         setState(() {
@@ -102,10 +120,17 @@ class _GraphRendererState extends State<GraphRenderer> {
       IconButton(
           onPressed: () {
             setState(() {
-              _controller.value = Matrix4.identity();
+              _controller.value = resetView();
             });
           },
           icon: const Icon(Icons.control_camera)),
+      IconButton(
+          onPressed: () {
+            setState(() {
+              _controller.value = focusView(widget.user.id);
+            });
+          },
+          icon: const Icon(Icons.travel_explore_sharp)),
       widget.targetUser != null
           ? IconButton(
               onPressed: () {
@@ -136,7 +161,7 @@ class _GraphRendererState extends State<GraphRenderer> {
             ),
           ),
           const PopupMenuDivider(),
-          const PopupMenuItem(value: "setting_A", child: Text('setting_B')),
+          const PopupMenuItem(value: "dummy Setting", child: Text('setting_A')),
         ],
       ),
     ];
@@ -189,17 +214,12 @@ class _GraphRendererState extends State<GraphRenderer> {
   Widget renderGraph(AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
     return Expanded(
       child: InteractiveViewer(
-          minScale: 0.1,
+          constrained: false,
+          minScale: 0.01,
           maxScale: 2,
-          boundaryMargin: const EdgeInsets.all(double.infinity),
+          boundaryMargin: const EdgeInsets.all(200),
           transformationController: _controller,
-          child: OverflowBox(
-              alignment: Alignment.center,
-              minWidth: 0.0,
-              minHeight: 0.0,
-              maxWidth: double.infinity,
-              maxHeight: double.infinity,
-              child: renderInnerGraph(snapshot))),
+          child: renderInnerGraph(snapshot)),
     );
   }
 
