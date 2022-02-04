@@ -5,6 +5,7 @@
         "nash.awesome-flutter-snippets",
         "marcelovelasquez.flutter-tree",
         "esbenp.prettier-vscode",
-        "diemasmichiels.emulate"
+        "diemasmichiels.emulate",
+        "maksimzemlyanikin.dartpad"
     ]
 }
