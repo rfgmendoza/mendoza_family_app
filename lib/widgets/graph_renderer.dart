@@ -20,11 +20,13 @@ class _GraphRendererState extends State<GraphRenderer> {
 
   BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
   final TransformationController _controller = TransformationController();
+  bool _firstRender = true;
 
   @override
   void initState() {
     super.initState();
     _orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
+    _firstRender = true;
   }
 
   @override
@@ -64,6 +66,17 @@ class _GraphRendererState extends State<GraphRenderer> {
                     return Expanded(child: Text('Error: ${snapshot.error}'));
                   } else {
                     graphDataMemo = snapshot.data!;
+                    Future.delayed(
+                        Duration.zero,
+                        () => {
+                              if (_firstRender)
+                                {
+                                  setState(() {
+                                    _firstRender = false;
+                                    _controller.value = resetViewToUser();
+                                  })
+                                }
+                            });
                     return renderGraph(snapshot);
                   }
                 }
@@ -75,6 +88,11 @@ class _GraphRendererState extends State<GraphRenderer> {
 
   Matrix4 resetView() {
     return focusView(graph.getNodeAtPosition(0).key!.value.toString());
+  }
+
+  Matrix4 resetViewToUser() {
+    return focusView(
+        graph.getNodeUsingId(widget.user.id).key!.value.toString());
   }
 
   Matrix4 focusView(String id) {
@@ -91,18 +109,20 @@ class _GraphRendererState extends State<GraphRenderer> {
 
   void handleMenuSelect(Object? value) {
     switch (value) {
-      // case "orient_vertical":
-      //   setState(
-      //     () {
-      //       _orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
-      //     },
-      //   );
-      //   break;
-      // case "orient_horizontal":
-      //   setState(() {
-      //     _orientation = BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
-      //   });
-      //   break;
+      case "orient_vertical":
+        setState(
+          () {
+            _orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
+            _firstRender = true;
+          },
+        );
+        break;
+      case "orient_horizontal":
+        setState(() {
+          _orientation = BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
+          _firstRender = true;
+        });
+        break;
       case "setting_full_tree":
         Navigator.pushReplacement(
             context,
@@ -126,7 +146,7 @@ class _GraphRendererState extends State<GraphRenderer> {
       IconButton(
           onPressed: () {
             setState(() {
-              _controller.value = focusView(widget.user.id);
+              _controller.value = resetViewToUser();
             });
           },
           icon: const Icon(Icons.travel_explore_sharp)),
@@ -170,9 +190,7 @@ class _GraphRendererState extends State<GraphRenderer> {
     bool isUser = a.id == widget.user.id;
     bool isTarget = a.id == widget.targetUser?.id;
     return SizedBox(
-      width: _orientation == BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT
-          ? 400
-          : 250,
+      width: 250,
       child: Card(
           color: isUser
               ? Colors.blueAccent
