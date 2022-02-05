@@ -82,28 +82,27 @@ class _GraphRendererState extends State<GraphRenderer> {
       (node) => node.key!.value == id,
     );
     double scale = 1.0;
+    Vector3 scalev = Vector3(scale, scale, scale);
+    Vector3 transV = Vector3(-(startNode.x - startNode.width / 3),
+        -(startNode.y - (startNode.height) * id.length), 0.0);
     return _controller.value.clone()
-      ..setDiagonal(Vector4(scale, scale, scale, 1.0))
-      ..setColumn(
-          3,
-          Vector4(-(startNode.x - startNode.width / 3),
-              -(startNode.y - (startNode.height) * id.length), 0.0, 1.0));
+      ..setFromTranslationRotationScale(transV, Quaternion.identity(), scalev);
   }
 
   void handleMenuSelect(Object? value) {
     switch (value) {
-      case "orient_vertical":
-        setState(
-          () {
-            _orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
-          },
-        );
-        break;
-      case "orient_horizontal":
-        setState(() {
-          _orientation = BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
-        });
-        break;
+      // case "orient_vertical":
+      //   setState(
+      //     () {
+      //       _orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
+      //     },
+      //   );
+      //   break;
+      // case "orient_horizontal":
+      //   setState(() {
+      //     _orientation = BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
+      //   });
+      //   break;
       case "setting_full_tree":
         Navigator.pushReplacement(
             context,
