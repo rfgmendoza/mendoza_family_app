@@ -46,13 +46,18 @@ class _SearchPageState extends State<SearchPage> {
               color: Colors.lightBlue[200],
               child: personTile(sourcePerson,
                   trailing: sourcePerson.id != widget.user.id
-                      ? IconButton(
-                          onPressed: () {
-                            setState(() {
-                              sourcePerson = widget.user;
-                            });
-                          },
-                          icon: const Icon(Icons.person_off_rounded))
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    sourcePerson = widget.user;
+                                  });
+                                },
+                                icon: const Icon(Icons.person_off_rounded)),
+                          ],
+                        )
                       : IconButton(
                           onPressed: () {
                             _openPeoplePicker(targetPerson?.id[0])
@@ -60,7 +65,7 @@ class _SearchPageState extends State<SearchPage> {
                                       if (value != null)
                                         {
                                           setState(() {
-                                            sourcePerson =
+                                            targetPerson =
                                                 value as FamilyPerson;
                                           })
                                         }
@@ -82,20 +87,26 @@ class _SearchPageState extends State<SearchPage> {
                         color: Colors.lightGreen[200],
                         child: personTile(
                           person,
-                          trailing: IconButton(
-                              onPressed: () {
-                                _openPeoplePicker(sourcePerson.id[0])
-                                    .then((value) => {
-                                          if (value != null)
-                                            {
-                                              setState(() {
-                                                sourcePerson =
-                                                    value as FamilyPerson;
-                                              })
-                                            }
-                                        });
-                              },
-                              icon: const Icon(Icons.person_search_rounded)),
+                          trailing: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                  onPressed: () {
+                                    _openPeoplePicker(sourcePerson.id[0])
+                                        .then((value) => {
+                                              if (value != null)
+                                                {
+                                                  setState(() {
+                                                    sourcePerson =
+                                                        value as FamilyPerson;
+                                                  })
+                                                }
+                                            });
+                                  },
+                                  icon:
+                                      const Icon(Icons.person_search_rounded)),
+                            ],
+                          ),
                         ),
                       ),
                     )
@@ -118,37 +129,22 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget searchOptions(BuildContext context) {
-    double bodyHeight = MediaQuery.of(context).size.height -
-        Scaffold.of(context).appBarMaxHeight!;
-    return SizedBox(
-      height: bodyHeight,
-      child: Center(
-        child:
-            Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-          // Container(
-          //   child: Card(
-          //       child: Padding(
-          //           padding: const EdgeInsets.all(8.0),
-          //           child: Text("Family Group: " + widget.user.id[0]))),
-          // ),
-          Container(height: bodyHeight * 0.5, child: personCard(targetPerson)),
-          Container(
-            height: bodyHeight * 0.05,
-            child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => GraphRenderer(
-                              user: widget.user, targetUser: targetPerson)));
-                },
-                child: Text(targetPerson != null
-                    ? "See Relationship Tree"
-                    : "See Full Family Tree")),
-          ),
-          Container(height: bodyHeight * 0.1)
-        ]),
-      ),
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        personCard(targetPerson),
+        ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => GraphRenderer(
+                          user: widget.user, targetUser: targetPerson)));
+            },
+            child: Text(targetPerson != null
+                ? "See Relationship Tree"
+                : "See Full Family Tree")),
+      ]),
     );
   }
 

@@ -114,10 +114,9 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
   /**begin scratch */
   FamilyTree familyTree = FamilyTree();
   await familyTree.initFamily();
-
-  /** end scratch */
-
   await familyTree.buildAllFamilyGraphData();
+
+  //add filter modes here
   nodes = familyTree.nodeMap[familyGroup]!;
   graph.addEdges(familyTree.graphEdgesMap[familyGroup]!);
   return nodes;
