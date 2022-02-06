@@ -12,6 +12,25 @@ class PeoplePickerPage extends StatefulWidget {
 class _PeoplePickerPageState extends State<PeoplePickerPage> {
   List _items = [];
   List<FamilyPerson> _searchResult = [];
+  List<bool> _filterGroup = [];
+  String? _searchText;
+  TextEditingController controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    controller.addListener(() {
+      submitSearch(controller.text, _filterGroup);
+    });
+    int? fg = int.tryParse(widget.familyGroup!);
+    _filterGroup = List.generate(
+        7,
+        (index) => fg != null
+            ? (index + 1 == int.tryParse(widget.familyGroup ?? "")
+                ? true
+                : false)
+            : false);
+  }
 
   Future<bool> confirmAlert(FamilyPerson person) async {
     Widget cancelButton = TextButton(
@@ -36,27 +55,92 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
         });
   }
 
+  List<Widget> _filterButtons() {
+    return List<Widget>.generate(7, (index) => Text((index + 1).toString()));
+  }
+
   Widget _buildSearchResults() {
-    return ListView.builder(
-        itemCount: _searchResult.length,
-        itemBuilder: (context, i) {
-          return Card(
-              child: ListTile(
-                  trailing: ElevatedButton(
-                    child: const Text("Select"),
-                    onPressed: () async {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: const Text("Filter by Family Group:"),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 2.0),
+          child: ToggleButtons(
+              children: _filterButtons(),
+              isSelected: _filterGroup,
+              onPressed: (int group) {
+                List<bool> filter = _filterGroup;
+                for (int buttonIndex = 0;
+                    buttonIndex < filter.length;
+                    buttonIndex++) {
+                  if (buttonIndex == group) {
+                    filter[buttonIndex] = !filter[buttonIndex];
+                  } else {
+                    filter[buttonIndex] = false;
+                  }
+                }
+                submitSearch(controller.text, filter);
+              }),
+        ),
+        Expanded(
+          child: ListView.builder(
+              itemCount: _searchResult.length,
+              itemBuilder: (context, i) {
+                return Card(
+                  child: InkWell(
+                    onTap: () async {
                       final result = await confirmAlert(_searchResult[i]);
                       if (result) {
                         Navigator.pop(context, _searchResult[i]);
                       }
                     },
+                    child: ListTile(
+                        trailing: ElevatedButton(
+                          child: const Text("Select"),
+                          onPressed: () async {
+                            final result = await confirmAlert(_searchResult[i]);
+                            if (result) {
+                              Navigator.pop(context, _searchResult[i]);
+                            }
+                          },
+                        ),
+                        leading: Text(_searchResult[i].id),
+                        title: Text(
+                          _searchResult[i].name,
+                        ),
+                        subtitle: Text(_searchResult[i].spouse)),
                   ),
-                  leading: Text(_searchResult[i].id),
-                  title: Text(
-                    _searchResult[i].name,
-                  ),
-                  subtitle: Text(_searchResult[i].spouse)));
-        });
+                );
+              }),
+        ),
+      ],
+    );
+  }
+
+  int getFilterGroupInt(List<bool> filterGroup) {
+    return filterGroup.indexWhere((element) => element);
+  }
+
+  void submitSearch(String searchText, List<bool> filterGroup) {
+    List<dynamic> filteredItems = getFilterGroupInt(filterGroup) != -1
+        ? [_items[getFilterGroupInt(filterGroup)]]
+        : _items;
+    List<FamilyPerson> searchResults = search(searchText, filteredItems);
+    setState(() {
+      _filterGroup = filterGroup;
+      _searchResult = searchResults;
+    });
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is removed from the
+    // widget tree.
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -64,18 +148,9 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
     if (_items.isEmpty) {
       readFamilyJson().then((value) => {
             setState(() {
-              _items = widget.familyGroup != null
-                  ? [value[int.parse(widget.familyGroup!) - 1]]
-                  : value;
+              _items = value;
             })
           });
-    }
-    TextEditingController controller = TextEditingController();
-    void submitSearch(String searchText) {
-      List<FamilyPerson> searchResults = search(searchText, _items);
-      setState(() {
-        _searchResult = searchResults;
-      });
     }
 
     return Scaffold(
@@ -103,15 +178,14 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
                         controller: controller,
                         textInputAction: TextInputAction.search,
                         onSubmitted: (value) {
-                          submitSearch(value);
+                          submitSearch(value, _filterGroup);
                         },
                       ),
                     ),
                   ),
                   TextButton(
                     onPressed: () {
-                      String searchtext = controller.text;
-                      submitSearch(searchtext);
+                      submitSearch(controller.text, _filterGroup);
                     },
                     child: const Icon(
                       Icons.search,
@@ -125,8 +199,7 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
                       child: Padding(
                       padding: const EdgeInsets.symmetric(
                           vertical: 8.0, horizontal: 0),
-                      child:
-                          SizedBox(height: 200.0, child: _buildSearchResults()),
+                      child: _buildSearchResults(),
                     ))
                   : Container()
             ],
