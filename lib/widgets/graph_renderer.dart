@@ -46,8 +46,8 @@ class _GraphRendererState extends State<GraphRenderer> {
         mainAxisSize: MainAxisSize.max,
         children: [
           FutureBuilder(
-              future:
-                  generateFamilyTreeData(graph, widget.user, widget.targetUser),
+              future: generateFamilyTreeData(graph, widget.user,
+                  const FilterSettings(FilterMode.standard, null)),
               builder:
                   (context, AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
                 if (snapshot.connectionState != ConnectionState.done ||

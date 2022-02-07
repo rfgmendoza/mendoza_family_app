@@ -17,6 +17,25 @@ class FamilyTreeData {
   const FamilyTreeData(this.familyMap, this.graph);
 }
 
+enum FilterMode {
+  standard,
+  target,
+  immediate,
+  extended,
+}
+
+enum DisplayMode {
+  standard,
+  relation,
+  compact,
+}
+
+class FilterSettings {
+  final FamilyPerson? target;
+  final FilterMode filterMode;
+  const FilterSettings(this.filterMode, this.target);
+}
+
 class FamilyPerson {
   final String id, name, spouse;
   final bool deceased, spouseDeceased;
@@ -106,11 +125,38 @@ List<FamilyPerson> search(String searchText, List items) {
   return foundPeople;
 }
 
+bool isAncestorEdge(Edge edge, String id) {
+  bool out = false;
+  if (edge.destination.key?.value.contains(id) ||
+      id.contains(edge.destination.key?.value)) {
+    out = true;
+  }
+  // if (edge.source.key?.value.contains(id) ||
+  //     id.contains(edge.source.key?.value)) {
+  //   out = true;
+  // }
+  return out;
+}
+
+List<Edge> filterGraph(
+    List<Edge> edges, FamilyPerson user, FilterSettings settings) {
+  List<Edge> tempEdges = edges;
+  if (settings.filterMode == FilterMode.target && settings.target != null) {
+    tempEdges.retainWhere((element) =>
+        isAncestorEdge(element, user.id) &&
+        isAncestorEdge(element, settings.target!.id));
+  } else {
+    tempEdges.retainWhere((element) => isAncestorEdge(element, user.id));
+  }
+
+  return tempEdges;
+}
+
 Future<Map<String, FamilyPerson>> generateFamilyTreeData(
-    Graph graph, FamilyPerson user, FamilyPerson? targetPerson) async {
+    Graph graph, FamilyPerson user, FilterSettings filterSettings) async {
   int familyGroup = int.parse(user.id[0]) - 1;
   Map<String, FamilyPerson> nodes = {};
-  String targetId = targetPerson?.id ?? "";
+
   /**begin scratch */
   FamilyTree familyTree = FamilyTree();
   await familyTree.initFamily();
@@ -118,9 +164,17 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
 
   //add filter modes here
   nodes = familyTree.nodeMap[familyGroup]!;
-  graph.addEdges(familyTree.graphEdgesMap[familyGroup]!);
+  List<Edge> edges = [];
+  edges.addAll(filterGraph(
+      familyTree.graphEdgesMap[familyGroup]!, user, filterSettings));
+
+  String targetId = filterSettings.target?.id ?? "";
+
+  graph.addEdges(edges);
+
   return nodes;
 }
+
 // create function to add children?
 
 Future<Map<String, List<Object>>> fetchGraph(
