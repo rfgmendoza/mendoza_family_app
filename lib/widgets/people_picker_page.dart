@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
+import 'package:scan/scan.dart';
 
 class PeoplePickerPage extends StatefulWidget {
   final String? familyGroup;
@@ -15,6 +16,9 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
   List<bool> _filterGroup = [];
   String? _searchText;
   TextEditingController controller = TextEditingController();
+  bool _qrMode = false;
+  ScanController scanController = ScanController();
+  String qrcode = 'Unknown';
 
   @override
   void initState() {
@@ -57,9 +61,9 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
   Widget _buildSearchResults() {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: const Text("Filter by Family Group:"),
+        const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text("Filter by Family Group:"),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 2.0),
@@ -130,6 +134,8 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
     });
   }
 
+  void _getQrCode() {}
+
   @override
   void dispose() {
     // Clean up the controller when the widget is removed from the
@@ -149,56 +155,84 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
     }
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            setState(() {
+              _qrMode = !_qrMode;
+            });
+          },
+          child: _qrMode
+              ? const Icon(Icons.cancel_sharp)
+              : const Icon(Icons.qr_code_scanner)),
       appBar: AppBar(
-          title: const Text("Find Person"),
-          // actions: [IconButton(onPressed: _searchMode, icon: customIcon)],
-          centerTitle: true),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text(
-                "Enter Name or Family Id",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Expanded(
+        title: const Text("Find Person"),
+        // actions: [IconButton(onPressed: _searchMode, icon: customIcon)],
+        centerTitle: true,
+      ),
+      body: _qrMode ? qrCodeScanner() : searchForPerson(),
+    );
+  }
+
+  Widget qrCodeScanner() {
+    return Center(
+      child: ScanView(
+          controller: scanController,
+          scanAreaScale: 0.7,
+          scanLineColor: Colors.red,
+          onCapture: (data) {
+            setState(() {
+              qrcode = data;
+            });
+          }),
+    );
+  }
+
+  Widget searchForPerson() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text(
+              "Enter Name or Family Id",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(4.0, 0, 0, 0),
+                    child: TextField(
+                      controller: controller,
+                      textInputAction: TextInputAction.search,
+                      onSubmitted: (value) {
+                        submitSearch(value, _filterGroup);
+                      },
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    submitSearch(controller.text, _filterGroup);
+                  },
+                  child: const Icon(
+                    Icons.search,
+                    size: 40.0,
+                  ),
+                ),
+              ],
+            ),
+            _searchResult.isNotEmpty
+                ? Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(4.0, 0, 0, 0),
-                      child: TextField(
-                        controller: controller,
-                        textInputAction: TextInputAction.search,
-                        onSubmitted: (value) {
-                          submitSearch(value, _filterGroup);
-                        },
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      submitSearch(controller.text, _filterGroup);
-                    },
-                    child: const Icon(
-                      Icons.search,
-                      size: 40.0,
-                    ),
-                  ),
-                ],
-              ),
-              _searchResult.isNotEmpty
-                  ? Expanded(
-                      child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 0),
-                      child: _buildSearchResults(),
-                    ))
-                  : Container()
-            ],
-          ),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 0),
+                    child: _buildSearchResults(),
+                  ))
+                : Container()
+          ],
         ),
       ),
     );
