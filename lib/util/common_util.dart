@@ -65,15 +65,19 @@ class FamilyPerson {
       };
 }
 
-Future<FamilyPerson?> getCachedUser() async {
+Future<Map<String, FamilyPerson>> getCachedUser() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
   String? user = prefs.getString('user');
+  String? target = prefs.getString('target');
+  Map<String, FamilyPerson> outMap = {};
   if (user != null) {
-    return FamilyPerson.fromJson(json.decode(user));
-  } else {
-    return null;
+    outMap["user"] = FamilyPerson.fromJson(json.decode(user));
   }
+  if (target != null) {
+    outMap["target"] = FamilyPerson.fromJson(json.decode(target));
+  }
+  return outMap;
 }
 
 Future<List<dynamic>> readFamilyJson() async {
@@ -82,10 +86,11 @@ Future<List<dynamic>> readFamilyJson() async {
   return data["families"];
 }
 
-Future<bool> setCachedUser(FamilyPerson person) async {
+Future<bool> setCachedUser(FamilyPerson person, {bool target = false}) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool success = true;
-  success = await prefs.setString("user", jsonEncode(person));
+  success =
+      await prefs.setString(target ? "target" : "user", jsonEncode(person));
 
   return success;
 }

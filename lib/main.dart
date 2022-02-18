@@ -30,28 +30,8 @@ class MendozaFamilyApp extends StatelessWidget {
             primarySwatch: Colors.blue),
         initialRoute: 'home',
         routes: {
-          'home': (context) => tryLogin(),
+          'home': (context) => const SearchPage(),
         },
-        home: tryLogin());
-  }
-
-  Widget tryLogin() {
-    return FutureBuilder(
-      future: getCachedUser(),
-      builder: (BuildContext context, AsyncSnapshot<FamilyPerson?> snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.waiting:
-            return const CircularProgressIndicator();
-          default:
-            if (snapshot.hasData) {
-              if (snapshot.data != null) {
-                return SearchPage(user: snapshot.data!);
-              }
-            }
-            return const CommonScaffold(
-                title: "Which Mendoza Are You?", child: LoginPage());
-        }
-      },
-    );
+        home: const SearchPage());
   }
 }
