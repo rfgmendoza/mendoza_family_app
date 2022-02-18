@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mendoza_family_app/pages/login_page.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
 import 'package:mendoza_family_app/util/common_widgets.dart';
 import 'package:mendoza_family_app/widgets/graph_renderer.dart';
@@ -6,21 +7,16 @@ import 'package:mendoza_family_app/widgets/people_picker_page.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class SearchPage extends StatefulWidget {
-  final FamilyPerson user;
-  const SearchPage({Key? key, required this.user}) : super(key: key);
+  const SearchPage({Key? key}) : super(key: key);
 
   @override
   _SearchPageState createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> {
-  late FamilyPerson sourcePerson;
-  FamilyPerson? targetPerson;
-
   @override
   void initState() {
     super.initState();
-    sourcePerson = widget.user;
   }
 
   @override
@@ -32,11 +28,31 @@ class _SearchPageState extends State<SearchPage> {
           leading: Image.asset('assets/MendozaLogo.png'),
         ),
         body: Builder(builder: (context) {
-          return searchOptions(context);
+          return FutureBuilder(
+            future: getCachedUser(),
+            builder: (BuildContext context,
+                AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
+                  return const CircularProgressIndicator();
+                default:
+                  if (snapshot.hasData) {
+                    if (snapshot.data != null &&
+                        snapshot.data!.containsKey("user")) {
+                      return searchOptions(context, snapshot.data!);
+                    } else {
+                      return const LoginPage();
+                    }
+                  } else {
+                    return const LoginPage();
+                  }
+              }
+            },
+          );
         }));
   }
 
-  Widget personCard(FamilyPerson? person) {
+  Widget personCard(FamilyPerson sourcePerson, FamilyPerson? person) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -45,32 +61,18 @@ class _SearchPageState extends State<SearchPage> {
           child: Card(
             color: Colors.lightBlue[200],
             child: personTile(sourcePerson,
-                trailing: sourcePerson.id != widget.user.id
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  sourcePerson = widget.user;
-                                });
-                              },
-                              icon: const Icon(Icons.person_off_rounded)),
-                        ],
-                      )
-                    : IconButton(
-                        onPressed: () {
-                          _openPeoplePicker(targetPerson?.id[0])
-                              .then((value) => {
-                                    if (value != null)
-                                      {
-                                        setState(() {
-                                          targetPerson = value as FamilyPerson;
-                                        })
-                                      }
-                                  });
-                        },
-                        icon: const Icon(Icons.person_search_rounded))),
+                trailing: IconButton(
+                    onPressed: () {
+                      _openPeoplePicker(person?.id[0])
+                          .then((value) => {
+                                if (value != null)
+                                  {setCachedUser(value as FamilyPerson)}
+                              })
+                          .whenComplete(() => setState(
+                                () {},
+                              ));
+                    },
+                    icon: const Icon(Icons.person_search_rounded))),
           ),
         ),
         const Divider(),
@@ -94,12 +96,14 @@ class _SearchPageState extends State<SearchPage> {
                                       .then((value) => {
                                             if (value != null)
                                               {
-                                                setState(() {
-                                                  sourcePerson =
-                                                      value as FamilyPerson;
-                                                })
+                                                setCachedUser(
+                                                    value as FamilyPerson,
+                                                    target: true)
                                               }
-                                          });
+                                          })
+                                      .whenComplete(() => setState(
+                                            () {},
+                                          ));
                                 },
                                 icon: const Icon(Icons.person_search_rounded)),
                           ],
@@ -114,9 +118,11 @@ class _SearchPageState extends State<SearchPage> {
                   icon: const Icon(Icons.person_add_alt_outlined),
                   onPressed: () {
                     _openPeoplePicker(sourcePerson.id[0])
-                        .then((value) => setState(() {
-                              targetPerson = value as FamilyPerson?;
-                            }));
+                        .then((value) =>
+                            setCachedUser(value as FamilyPerson, target: true))
+                        .whenComplete(() => setState(
+                              () {},
+                            ));
                   },
                 ),
               )
@@ -124,7 +130,10 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget searchOptions(BuildContext context) {
+  Widget searchOptions(
+      BuildContext context, Map<String, FamilyPerson> peopleMap) {
+    FamilyPerson user = peopleMap["user"]!;
+    FamilyPerson? targetPerson = peopleMap["target"];
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -132,20 +141,20 @@ class _SearchPageState extends State<SearchPage> {
           padding: const EdgeInsets.symmetric(vertical: 32.0),
           child: Card(
             child: QrImage(
-              data: widget.user.id,
+              data: user.id,
               version: QrVersions.auto,
               size: 200.0,
             ),
           ),
         ),
-        personCard(targetPerson),
+        personCard(user, targetPerson),
         ElevatedButton(
             onPressed: () {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => GraphRenderer(
-                          user: widget.user, targetUser: targetPerson)));
+                      builder: (context) =>
+                          GraphRenderer(user: user, targetUser: targetPerson)));
             },
             child: Text(targetPerson != null
                 ? "See Relationship Tree"

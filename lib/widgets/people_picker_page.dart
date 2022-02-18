@@ -26,14 +26,9 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
     controller.addListener(() {
       submitSearch(controller.text, _filterGroup);
     });
-    int? fg = int.tryParse(widget.familyGroup!);
+    int? fg = int.tryParse(widget.familyGroup ?? "");
     _filterGroup = List.generate(
-        7,
-        (index) => fg != null
-            ? (index + 1 == int.tryParse(widget.familyGroup ?? "")
-                ? true
-                : false)
-            : false);
+        7, (index) => fg != null ? (index + 1 == fg ? true : false) : false);
   }
 
   Future<bool> confirmAlert(FamilyPerson person) async {
