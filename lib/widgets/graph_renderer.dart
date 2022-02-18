@@ -91,6 +91,7 @@ class _GraphRendererState extends State<GraphRenderer> {
   }
 
   Matrix4 resetViewToUser() {
+    // TODO: check for user existance
     return focusView(
         graph.getNodeUsingId(widget.user.id).key!.value.toString());
   }

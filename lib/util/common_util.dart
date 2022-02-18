@@ -146,13 +146,13 @@ bool isAncestorEdge(Edge edge, String id) {
 List<Edge> filterGraph(
     List<Edge> edges, FamilyPerson user, FilterSettings settings) {
   List<Edge> tempEdges = edges;
-  if (settings.filterMode == FilterMode.target && settings.target != null) {
-    tempEdges.retainWhere((element) =>
-        isAncestorEdge(element, user.id) &&
-        isAncestorEdge(element, settings.target!.id));
-  } else {
-    tempEdges.retainWhere((element) => isAncestorEdge(element, user.id));
-  }
+  // if (settings.filterMode == FilterMode.target && settings.target != null) {
+  //   tempEdges.retainWhere((element) =>
+  //       isAncestorEdge(element, user.id) &&
+  //       isAncestorEdge(element, settings.target!.id));
+  // } else {
+  //   tempEdges.retainWhere((element) => isAncestorEdge(element, user.id));
+  // }
 
   return tempEdges;
 }
