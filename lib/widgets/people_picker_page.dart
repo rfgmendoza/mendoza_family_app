@@ -18,7 +18,6 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
   TextEditingController controller = TextEditingController();
   bool _qrMode = false;
   ScanController scanController = ScanController();
-  String qrcode = 'Unknown';
 
   @override
   void initState() {
@@ -129,12 +128,17 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
         : _items;
     List<FamilyPerson> searchResults = search(searchText, filteredItems);
     setState(() {
+      _searchText = searchText;
       _filterGroup = filterGroup;
       _searchResult = searchResults;
+      _qrMode = false;
     });
   }
 
-  void _getQrCode() {}
+  void _getQrCode(String qrcode, List<bool> filterGroup) {
+    controller.text = qrcode;
+    submitSearch(qrcode, filterGroup);
+  }
 
   @override
   void dispose() {
@@ -180,9 +184,7 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
           scanAreaScale: 0.7,
           scanLineColor: Colors.red,
           onCapture: (data) {
-            setState(() {
-              qrcode = data;
-            });
+            _getQrCode(data, _filterGroup);
           }),
     );
   }
