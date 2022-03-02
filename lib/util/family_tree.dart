@@ -51,7 +51,6 @@ class FamilyTree {
       List<Edge> edges = [];
       Queue itemQueue = Queue.from([familyJson![familyId]]);
       while (itemQueue.isNotEmpty) {
-        // TODO: do not parse if cache values exist
         var rawData = itemQueue.removeFirst();
         String id = rawData["id"];
         Node node = Node.Id(id);

@@ -146,13 +146,13 @@ bool isAncestorEdge(Edge edge, String id) {
 List<Edge> filterGraph(
     List<Edge> edges, FamilyPerson user, FilterSettings settings) {
   List<Edge> tempEdges = edges;
-  // if (settings.filterMode == FilterMode.target && settings.target != null) {
-  //   tempEdges.retainWhere((element) =>
-  //       isAncestorEdge(element, user.id) &&
-  //       isAncestorEdge(element, settings.target!.id));
-  // } else {
-  //   tempEdges.retainWhere((element) => isAncestorEdge(element, user.id));
-  // }
+  if (settings.filterMode == FilterMode.target && settings.target != null) {
+    tempEdges.retainWhere((element) =>
+        isAncestorEdge(element, user.id) &&
+        isAncestorEdge(element, settings.target!.id));
+  } else {
+    tempEdges.retainWhere((element) => isAncestorEdge(element, user.id));
+  }
 
   return tempEdges;
 }
@@ -162,7 +162,6 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
   int familyGroup = int.parse(user.id[0]) - 1;
   Map<String, FamilyPerson> nodes = {};
 
-  /**begin scratch */
   FamilyTree familyTree = FamilyTree();
   await familyTree.initFamily();
   await familyTree.buildAllFamilyGraphData();

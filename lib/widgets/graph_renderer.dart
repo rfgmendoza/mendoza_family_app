@@ -21,6 +21,7 @@ class _GraphRendererState extends State<GraphRenderer> {
   BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
   final TransformationController _controller = TransformationController();
   bool _firstRender = true;
+  bool _smallNodes = false;
 
   @override
   void initState() {
@@ -130,6 +131,11 @@ class _GraphRendererState extends State<GraphRenderer> {
             MaterialPageRoute(
                 builder: (context) => GraphRenderer(user: widget.user)));
         break;
+      case "small_nodes":
+        setState(() {
+          _smallNodes = !_smallNodes;
+        });
+        break;
       default:
         print(value);
     }
@@ -181,17 +187,25 @@ class _GraphRendererState extends State<GraphRenderer> {
             ),
           ),
           const PopupMenuDivider(),
-          const PopupMenuItem(value: "dummy Setting", child: Text('setting_A')),
+          const PopupMenuItem(
+              value: "small_nodes", child: Text('Toggle Node Size')),
         ],
       ),
     ];
   }
 
+  bool isSmallNode(FamilyPerson a) {
+    bool isUser = a.id == widget.user.id;
+    bool isTarget = a.id == widget.targetUser?.id;
+    return !(isUser || isTarget) && _smallNodes;
+  }
+
   Widget nodeContents(FamilyPerson a) {
     bool isUser = a.id == widget.user.id;
     bool isTarget = a.id == widget.targetUser?.id;
+    bool isSmall = isSmallNode(a);
     return SizedBox(
-      width: 250,
+      width: isSmall ? 100 : 250,
       child: Card(
           color: isUser
               ? Colors.blueAccent
@@ -206,17 +220,20 @@ class _GraphRendererState extends State<GraphRenderer> {
                         builder: (context) =>
                             GraphRenderer(user: widget.user, targetUser: a)));
               },
-              leading: Text(a.id),
-              title: Text(
-                a.name,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: Text(
-                a.spouse,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ))),
+              leading: isSmall ? null : Text(a.id),
+              title: isSmall
+                  ? Text(a.id)
+                  : Text(
+                      a.name.toUpperCase(),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+              subtitle: isSmall
+                  ? null
+                  : Text(
+                      a.spouse,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ))),
     );
   }
 

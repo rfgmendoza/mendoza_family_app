@@ -30,10 +30,17 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
         7, (index) => fg != null ? (index + 1 == fg ? true : false) : false);
   }
 
-  Future<bool> confirmAlert(FamilyPerson person) async {
+  Future confirmAlert(FamilyPerson person) async {
     Widget cancelButton = TextButton(
         onPressed: () {
-          Navigator.pop(context, false);
+          FocusScopeNode currentFocus = FocusScope.of(context);
+
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
+          Navigator.of(context)
+            ..pop()
+            ..pop(person);
         },
         child: const Text("Cancel"));
     Widget confirmButton = TextButton(
@@ -90,10 +97,7 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
                 return Card(
                   child: InkWell(
                     onTap: () async {
-                      final result = await confirmAlert(_searchResult[i]);
-                      if (result) {
-                        Navigator.pop(context, _searchResult[i]);
-                      }
+                      await confirmAlert(_searchResult[i]);
                     },
                     child: ListTile(
                         trailing: ElevatedButton(

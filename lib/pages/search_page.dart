@@ -52,7 +52,7 @@ class _SearchPageState extends State<SearchPage> {
         }));
   }
 
-  Widget personCard(FamilyPerson sourcePerson, FamilyPerson? person) {
+  Widget personCards(FamilyPerson sourcePerson, FamilyPerson? person) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -136,18 +136,15 @@ class _SearchPageState extends State<SearchPage> {
     FamilyPerson? targetPerson = peopleMap["target"];
     return Padding(
       padding: const EdgeInsets.all(20.0),
-      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 32.0),
-          child: Card(
-            child: QrImage(
-              data: user.id,
-              version: QrVersions.auto,
-              size: 200.0,
-            ),
+      child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+        Card(
+          child: QrImage(
+            data: user.id,
+            version: QrVersions.auto,
+            size: 200.0,
           ),
         ),
-        personCard(user, targetPerson),
+        personCards(user, targetPerson),
         ElevatedButton(
             onPressed: () {
               Navigator.push(
