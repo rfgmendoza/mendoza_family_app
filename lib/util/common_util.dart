@@ -95,10 +95,14 @@ Future<bool> setCachedUser(FamilyPerson person, {bool target = false}) async {
   return success;
 }
 
-Future<bool> clearCachedUser() async {
+Future<bool> clearCachedUser({target = false}) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool success = true;
-  success = success && await prefs.remove('user');
+  if (!target) {
+    success = success && await prefs.remove('user');
+  } else {
+    success = success && await prefs.remove('target');
+  }
   return success;
 }
 

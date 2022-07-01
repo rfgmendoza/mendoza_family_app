@@ -92,20 +92,10 @@ class _SearchPageState extends State<SearchPage> {
                           children: [
                             IconButton(
                                 onPressed: () {
-                                  _openPeoplePicker(sourcePerson.id[0])
-                                      .then((value) => {
-                                            if (value != null)
-                                              {
-                                                setCachedUser(
-                                                    value as FamilyPerson,
-                                                    target: true)
-                                              }
-                                          })
-                                      .whenComplete(() => setState(
-                                            () {},
-                                          ));
+                                  clearCachedUser(target: true)
+                                      .whenComplete(() => setState(() {}));
                                 },
-                                icon: const Icon(Icons.person_search_rounded)),
+                                icon: const Icon(Icons.person_remove)),
                           ],
                         ),
                       ),
