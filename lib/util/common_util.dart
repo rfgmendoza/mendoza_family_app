@@ -134,35 +134,41 @@ List<FamilyPerson> search(String searchText, List items) {
   return foundPeople;
 }
 
-bool isAncestorEdge(Edge edge, String id) {
-  bool out = false;
-  if (edge.destination.key?.value.contains(id) ||
-      id.contains(edge.destination.key?.value)) {
-    out = true;
-  }
-  // if (edge.source.key?.value.contains(id) ||
-  //     id.contains(edge.source.key?.value)) {
-  //   out = true;
-  // }
-  return out;
+bool isAncestorEdge(Edge edge, String user, String? target) {
+  String edgeDest = edge.destination.key?.value;
+  String edgeSource = edge.source.key?.value;
+
+  /**
+   * scratchpad:
+   * 
+   * edgeDest = 3a
+   * edgeSource = 3
+   * user = 31461
+   * target = 3145
+   * 
+   * assumptions:
+   * 3, 31, 314 should be true as all are common ancestors
+   * 3146 should be included because thats the relation to user
+   * 
+   * 
+   */
+  bool isUserAncestor = user.contains(edgeDest) && user.contains(edgeSource);
+  bool isTargetAncestor = target != null &&
+      target.contains(edgeDest) &&
+      target.contains(edgeSource);
+  return isUserAncestor || isTargetAncestor;
 }
 
-List<Edge> filterGraph(
-    List<Edge> edges, FamilyPerson user, FilterSettings settings) {
-  List<Edge> tempEdges = edges;
-  if (settings.filterMode == FilterMode.target && settings.target != null) {
-    tempEdges.retainWhere((element) =>
-        isAncestorEdge(element, user.id) &&
-        isAncestorEdge(element, settings.target!.id));
-  } else {
-    tempEdges.retainWhere((element) => isAncestorEdge(element, user.id));
-  }
-
-  return tempEdges;
+List<Edge> filterGraph(List<Edge> edges, FamilyPerson user,
+    {FamilyPerson? target}) {
+  return edges
+      .where((element) => isAncestorEdge(element, user.id, target?.id))
+      .toList();
 }
 
 Future<Map<String, FamilyPerson>> generateFamilyTreeData(
-    Graph graph, FamilyPerson user, FilterSettings filterSettings) async {
+    Graph graph, FamilyPerson user,
+    {FamilyPerson? targetUser}) async {
   int familyGroup = int.parse(user.id[0]) - 1;
   Map<String, FamilyPerson> nodes = {};
 
@@ -173,10 +179,10 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
   //add filter modes here
   nodes = familyTree.nodeMap[familyGroup]!;
   List<Edge> edges = [];
-  edges.addAll(filterGraph(
-      familyTree.graphEdgesMap[familyGroup]!, user, filterSettings));
+  edges.addAll(filterGraph(familyTree.graphEdgesMap[familyGroup]!, user,
+      target: targetUser));
 
-  String targetId = filterSettings.target?.id ?? "";
+  String targetId = targetUser?.id ?? "";
 
   graph.addEdges(edges);
 

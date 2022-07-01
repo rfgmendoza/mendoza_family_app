@@ -48,7 +48,7 @@ class _GraphRendererState extends State<GraphRenderer> {
         children: [
           FutureBuilder(
               future: generateFamilyTreeData(graph, widget.user,
-                  const FilterSettings(FilterMode.standard, null)),
+                  targetUser: widget.targetUser),
               builder:
                   (context, AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
                 if (snapshot.connectionState != ConnectionState.done ||
@@ -226,6 +226,7 @@ class _GraphRendererState extends State<GraphRenderer> {
                   ? Text(a.id)
                   : Text(
                       a.name.toUpperCase(),
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
               subtitle: isSmall
