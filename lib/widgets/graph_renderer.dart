@@ -40,7 +40,7 @@ class _GraphRendererState extends State<GraphRenderer> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_controller.value.getTranslation().xy.toString()),
+        title: const Text("Family Tree"),
         actions: buttonRow(),
       ),
       body: Column(
@@ -103,7 +103,7 @@ class _GraphRendererState extends State<GraphRenderer> {
     );
     double scale = 1.0;
     Vector3 scalev = Vector3(scale, scale, scale);
-    Vector3 transV = Vector3(-(startNode.x - startNode.width / 3),
+    Vector3 transV = Vector3(-(startNode.x - startNode.width / 10),
         -(startNode.y - (startNode.height) * id.length), 0.0);
     return _controller.value.clone()
       ..setFromTranslationRotationScale(transV, Quaternion.identity(), scalev);
@@ -205,7 +205,7 @@ class _GraphRendererState extends State<GraphRenderer> {
     bool isTarget = a.id == widget.targetUser?.id;
     bool isSmall = isSmallNode(a);
     return SizedBox(
-      width: isSmall ? 100 : 250,
+      width: isSmall ? 100 : 350,
       child: Card(
           color: isUser
               ? Colors.blueAccent
@@ -217,8 +217,9 @@ class _GraphRendererState extends State<GraphRenderer> {
                 Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            GraphRenderer(user: widget.user, targetUser: a)));
+                        builder: (context) => GraphRenderer(
+                            user: widget.user,
+                            targetUser: isTarget ? null : a)));
               },
               leading: isSmall ? null : Text(a.id),
               title: isSmall
@@ -236,6 +237,8 @@ class _GraphRendererState extends State<GraphRenderer> {
                     ))),
     );
   }
+
+  // Widget nodeContentsBeta(FamilyPerson a) {}
 
   Widget rectangleWidget(FamilyPerson? a) {
     return Container(
