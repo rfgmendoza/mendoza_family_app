@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
+import 'package:mendoza_family_app/util/translation.dart';
 import 'package:scan/scan.dart';
 
 class PeoplePickerPage extends StatefulWidget {
@@ -18,6 +19,7 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
   TextEditingController controller = TextEditingController();
   bool _qrMode = false;
   ScanController scanController = ScanController();
+  final Translation _trans = Translation();
 
   @override
   void initState() {
@@ -173,7 +175,7 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
               ? const Icon(Icons.cancel_sharp)
               : const Icon(Icons.qr_code_scanner)),
       appBar: AppBar(
-        title: const Text("Find Person"),
+        title: Text(_trans.getString("people_picker_title")),
         // actions: [IconButton(onPressed: _searchMode, icon: customIcon)],
         centerTitle: true,
       ),

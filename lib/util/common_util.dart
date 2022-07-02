@@ -1,5 +1,6 @@
 import 'package:graphview/GraphView.dart';
 import 'package:mendoza_family_app/util/family_tree.dart';
+import 'package:mendoza_family_app/util/translation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:collection';
 import 'package:flutter/services.dart';
@@ -222,7 +223,7 @@ String getRelationshipDescription(String user, String targetPerson) {
 
   int i = 0;
   List<int> outList = [];
-  String returnString = "unknown";
+  String returnString = Translation().getString("unknown");
   if (user == targetPerson) {
     returnString = "same person";
   }

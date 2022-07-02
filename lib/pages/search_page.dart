@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mendoza_family_app/pages/login_page.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
 import 'package:mendoza_family_app/util/common_widgets.dart';
+import 'package:mendoza_family_app/util/translation.dart';
 import 'package:mendoza_family_app/widgets/graph_renderer.dart';
 import 'package:mendoza_family_app/widgets/people_picker_page.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -14,18 +15,37 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  Translation _trans = Translation();
+  bool _isEnglish = true;
+
   @override
   void initState() {
     super.initState();
+    _isEnglish = _trans.isEnglish;
   }
 
   @override
   Widget build(BuildContext context) {
+    final ButtonStyle style =
+        TextButton.styleFrom(primary: Theme.of(context).colorScheme.onPrimary);
+    _trans.setLanguage(_isEnglish);
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Mendoza Family Book"),
+          title: Text(_trans.getString("mendoza_family_book")),
           centerTitle: true,
           leading: Image.asset('assets/MendozaLogo.png'),
+          actions: [
+            TextButton(
+                style: style,
+                onPressed: () => {
+                      setState(
+                        () {
+                          _isEnglish = !_isEnglish;
+                        },
+                      )
+                    },
+                child: Text(_trans.getString("language")))
+          ],
         ),
         body: Builder(builder: (context) {
           return FutureBuilder(
@@ -144,8 +164,8 @@ class _SearchPageState extends State<SearchPage> {
                           GraphRenderer(user: user, targetUser: targetPerson)));
             },
             child: Text(targetPerson != null
-                ? "See Relationship Tree"
-                : "See Full Family Tree")),
+                ? _trans.getString("see_relationship_tree")
+                : _trans.getString("see_full_tree"))),
       ]),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mendoza_family_app/util/translation.dart';
 import 'package:mendoza_family_app/widgets/people_picker_page.dart';
 
 import '../util/common_util.dart';
@@ -10,7 +11,7 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
         child: ElevatedButton(
-      child: const Text("Who are you?"),
+      child: Text(Translation().getString("Who are you?")),
       onPressed: () {
         _navigateToPeoplePicker(context);
       },
