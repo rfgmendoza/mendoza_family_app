@@ -22,14 +22,13 @@ class _GraphRendererState extends State<GraphRenderer> {
   final TransformationController _controller = TransformationController();
   bool _firstRender = true;
   bool _smallNodes = false;
-  bool _shouldFilter = false;
+  final double _nodeWidth = 200.0;
 
   @override
   void initState() {
     super.initState();
     _orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
     _firstRender = true;
-    _shouldFilter = widget.targetUser != null;
   }
 
   @override
@@ -50,7 +49,7 @@ class _GraphRendererState extends State<GraphRenderer> {
         children: [
           FutureBuilder(
               future: generateFamilyTreeData(graph, widget.user,
-                  shouldFilter: _shouldFilter, targetUser: widget.targetUser),
+                  targetUser: widget.targetUser),
               builder:
                   (context, AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
                 if (snapshot.connectionState != ConnectionState.done ||
@@ -105,7 +104,7 @@ class _GraphRendererState extends State<GraphRenderer> {
     );
     double scale = 1.0;
     Vector3 scalev = Vector3(scale, scale, scale);
-    Vector3 transV = Vector3(-(startNode.x - startNode.width / 10),
+    Vector3 transV = Vector3(-(startNode.x - startNode.width + _nodeWidth / 2),
         -(startNode.y - (startNode.height) * id.length), 0.0);
     return _controller.value.clone()
       ..setFromTranslationRotationScale(transV, Quaternion.identity(), scalev);
@@ -138,9 +137,9 @@ class _GraphRendererState extends State<GraphRenderer> {
           _smallNodes = !_smallNodes;
         });
         break;
-      case "should_filter":
+      case "reset_view":
         setState(() {
-          _shouldFilter = !_shouldFilter;
+          _controller.value = resetViewToUser();
         });
         break;
       default:
@@ -157,13 +156,6 @@ class _GraphRendererState extends State<GraphRenderer> {
             });
           },
           icon: const Icon(Icons.control_camera)),
-      IconButton(
-          onPressed: () {
-            setState(() {
-              _controller.value = resetViewToUser();
-            });
-          },
-          icon: const Icon(Icons.travel_explore_sharp)),
       widget.targetUser != null
           ? IconButton(
               onPressed: () {
@@ -196,8 +188,7 @@ class _GraphRendererState extends State<GraphRenderer> {
           const PopupMenuDivider(),
           const PopupMenuItem(
               value: "small_nodes", child: Text('Toggle Node Size')),
-          const PopupMenuItem(
-              value: "should_filter", child: Text('Toggle Filter Mode')),
+          const PopupMenuItem(value: "reset_view", child: Text('Reset View')),
         ],
       ),
     ];
@@ -217,7 +208,7 @@ class _GraphRendererState extends State<GraphRenderer> {
       decoration: const BoxDecoration(
           // color: Colors.greenAccent,
           borderRadius: BorderRadius.all(Radius.circular(20))),
-      width: isSmall ? 100 : 200,
+      width: isSmall ? _nodeWidth / 2 : _nodeWidth,
       child: Card(
           color: isUser
               ? Colors.blueAccent

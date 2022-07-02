@@ -170,7 +170,7 @@ filterGraph(Graph graph, List<Edge> edges, FamilyPerson user,
 
 Future<Map<String, FamilyPerson>> generateFamilyTreeData(
     Graph graph, FamilyPerson user,
-    {bool shouldFilter = false, FamilyPerson? targetUser}) async {
+    {FamilyPerson? targetUser}) async {
   int familyGroup = int.parse(user.id[0]) - 1;
   Map<String, FamilyPerson> nodes = {};
 
@@ -180,7 +180,7 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
 
   //add filter modes here
   nodes = familyTree.nodeMap[familyGroup]!;
-  if (shouldFilter) {
+  if (targetUser != null) {
     filterGraph(graph, familyTree.graphEdgesMap[familyGroup]!, user,
         target: targetUser);
   } else {
