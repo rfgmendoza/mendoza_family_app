@@ -22,12 +22,14 @@ class _GraphRendererState extends State<GraphRenderer> {
   final TransformationController _controller = TransformationController();
   bool _firstRender = true;
   bool _smallNodes = false;
+  bool _shouldFilter = false;
 
   @override
   void initState() {
     super.initState();
     _orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
     _firstRender = true;
+    _shouldFilter = widget.targetUser != null;
   }
 
   @override
@@ -48,7 +50,7 @@ class _GraphRendererState extends State<GraphRenderer> {
         children: [
           FutureBuilder(
               future: generateFamilyTreeData(graph, widget.user,
-                  targetUser: widget.targetUser),
+                  shouldFilter: _shouldFilter, targetUser: widget.targetUser),
               builder:
                   (context, AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
                 if (snapshot.connectionState != ConnectionState.done ||
@@ -136,6 +138,11 @@ class _GraphRendererState extends State<GraphRenderer> {
           _smallNodes = !_smallNodes;
         });
         break;
+      case "should_filter":
+        setState(() {
+          _shouldFilter = !_shouldFilter;
+        });
+        break;
       default:
         print(value);
     }
@@ -166,7 +173,7 @@ class _GraphRendererState extends State<GraphRenderer> {
                         builder: (context) =>
                             GraphRenderer(user: widget.user)));
               },
-              icon: const Icon(Icons.zoom_out_map))
+              icon: const Icon(Icons.person_off))
           : Container(),
       PopupMenuButton(
         onSelected: (value) => handleMenuSelect(value),
@@ -189,6 +196,8 @@ class _GraphRendererState extends State<GraphRenderer> {
           const PopupMenuDivider(),
           const PopupMenuItem(
               value: "small_nodes", child: Text('Toggle Node Size')),
+          const PopupMenuItem(
+              value: "should_filter", child: Text('Toggle Filter Mode')),
         ],
       ),
     ];
@@ -204,8 +213,11 @@ class _GraphRendererState extends State<GraphRenderer> {
     bool isUser = a.id == widget.user.id;
     bool isTarget = a.id == widget.targetUser?.id;
     bool isSmall = isSmallNode(a);
-    return SizedBox(
-      width: isSmall ? 100 : 350,
+    return Container(
+      decoration: const BoxDecoration(
+          // color: Colors.greenAccent,
+          borderRadius: BorderRadius.all(Radius.circular(20))),
+      width: isSmall ? 100 : 200,
       child: Card(
           color: isUser
               ? Colors.blueAccent
@@ -221,14 +233,7 @@ class _GraphRendererState extends State<GraphRenderer> {
                             user: widget.user,
                             targetUser: isTarget ? null : a)));
               },
-              leading: isSmall ? null : Text(a.id),
-              title: isSmall
-                  ? Text(a.id)
-                  : Text(
-                      a.name.toUpperCase(),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+              title: isSmall ? Text(a.id) : largeTitle(a),
               subtitle: isSmall
                   ? null
                   : Text(
@@ -238,6 +243,20 @@ class _GraphRendererState extends State<GraphRenderer> {
                     ))),
     );
   }
+
+  Widget largeTitle(FamilyPerson a) {
+    return Text.rich(TextSpan(
+        // style: const TextStyle(
+        //     fontWeight: FontWeight.bold, color: Colors.black, fontSize: 14),
+        children: [
+          TextSpan(
+              text: a.id + "\n",
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          TextSpan(text: a.name.toUpperCase())
+        ]));
+  }
+
+  // Widget smallTitle(FamilyPerson b) {}
 
   // Widget nodeContentsBeta(FamilyPerson a) {}
 

@@ -159,16 +159,18 @@ bool isAncestorEdge(Edge edge, String user, String? target) {
   return isUserAncestor || isTargetAncestor;
 }
 
-List<Edge> filterGraph(List<Edge> edges, FamilyPerson user,
+filterGraph(Graph graph, List<Edge> edges, FamilyPerson user,
     {FamilyPerson? target}) {
-  return edges
-      .where((element) => isAncestorEdge(element, user.id, target?.id))
-      .toList();
+  for (var element in edges) {
+    isAncestorEdge(element, user.id, target?.id)
+        ? graph.addEdgeS(element)
+        : graph.removeEdge(element);
+  }
 }
 
 Future<Map<String, FamilyPerson>> generateFamilyTreeData(
     Graph graph, FamilyPerson user,
-    {FamilyPerson? targetUser}) async {
+    {bool shouldFilter = false, FamilyPerson? targetUser}) async {
   int familyGroup = int.parse(user.id[0]) - 1;
   Map<String, FamilyPerson> nodes = {};
 
@@ -178,14 +180,12 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
 
   //add filter modes here
   nodes = familyTree.nodeMap[familyGroup]!;
-  List<Edge> edges = [];
-  edges.addAll(filterGraph(familyTree.graphEdgesMap[familyGroup]!, user,
-      target: targetUser));
-
-  String targetId = targetUser?.id ?? "";
-
-  graph.addEdges(edges);
-
+  if (shouldFilter) {
+    filterGraph(graph, familyTree.graphEdgesMap[familyGroup]!, user,
+        target: targetUser);
+  } else {
+    graph.addEdges(familyTree.graphEdgesMap[familyGroup]!);
+  }
   return nodes;
 }
 
