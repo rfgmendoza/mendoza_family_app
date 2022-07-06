@@ -44,16 +44,16 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
             ..pop()
             ..pop(person);
         },
-        child: const Text("Cancel"));
+        child: Text(_trans.getString("cancel")));
     Widget confirmButton = TextButton(
         onPressed: () async {
           Navigator.pop(context, true);
         },
-        child: const Text("Confirm"));
+        child: Text(_trans.getString("confirm")));
 
     AlertDialog alert = AlertDialog(
-        title: const Text("Confirm Selection"),
-        content: const Text("Are you sure?"),
+        title: Text(_trans.getString("confirm_selection")),
+        content: Text(_trans.getString("you_sure")),
         actions: [cancelButton, confirmButton]);
     return await showDialog(
         context: context,
@@ -69,9 +69,9 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
   Widget _buildSearchResults() {
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text("Filter by Family Group:"),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(_trans.getString("filter_by_group")),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 2.0),
@@ -103,7 +103,7 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
                     },
                     child: ListTile(
                         trailing: ElevatedButton(
-                          child: const Text("Select"),
+                          child: Text(_trans.getString("select")),
                           onPressed: () async {
                             final result = await confirmAlert(_searchResult[i]);
                             if (result) {
@@ -202,9 +202,9 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              "Enter Name or Family Id",
-              style: TextStyle(fontWeight: FontWeight.bold),
+            Text(
+              _trans.getString("people_picker_instruction"),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,

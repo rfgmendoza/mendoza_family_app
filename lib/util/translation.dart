@@ -48,15 +48,68 @@ class Translation {
         break;
       case "people_picker_title":
         // title of people search page
-        return isEnglish ? "Find Person" : "Buscar Persona";
+        return isEnglish ? "Person Search" : "Búsqueda de Persona";
         break;
-      case "":
-        // could not find a relationship
-        return isEnglish ? "" : "";
+      case "people_picker_instruction":
+        // instructions for search page
+        return isEnglish
+            ? "Enter Name or Family Id"
+            : "Ingrese el nombre o identificación de la familia";
         break;
-      case "":
+      case "horizontal":
         // could not find a relationship
-        return isEnglish ? "" : "";
+        return isEnglish ? "Horizontal" : "Horizontal";
+        break;
+      case "vertical":
+        // could not find a relationship
+        return isEnglish ? "Vertical" : "Vertical";
+        break;
+
+      case "reset_view":
+        // could not find a relationship
+        return isEnglish ? "Reset View" : "Reestablecer vista";
+        break;
+
+      case "toggle_node_size":
+        // could not find a relationship
+        return isEnglish ? "Toggle Node Size" : "Alternar tamaño de nodo";
+        break;
+
+      case "family_tree":
+        // could not find a relationship
+        return isEnglish ? "Family Tree" : "Árbol de familia";
+        break;
+
+      case "cancel":
+        // could not find a relationship
+        return isEnglish ? "Cancel" : "Cancelar";
+        break;
+
+      case "confirm":
+        // could not find a relationship
+        return isEnglish ? "Confirm" : "Confirmar";
+        break;
+
+      case "confirm_selection":
+        // could not find a relationship
+        return isEnglish ? "Confirm Selection" : "Confirmar selección";
+        break;
+
+      case "you_sure":
+        // could not find a relationship
+        return isEnglish ? "Are You Sure?" : "¿Estas seguro?";
+        break;
+
+      case "filter_by_group":
+        // could not find a relationship
+        return isEnglish
+            ? "Filter by Family Group:"
+            : "Filtrar por Grupo Familiar:";
+        break;
+
+      case "select":
+        // could not find a relationship
+        return isEnglish ? "Select" : "Seleccione";
         break;
 
       default:

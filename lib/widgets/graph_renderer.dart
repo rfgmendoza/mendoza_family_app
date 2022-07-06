@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graphview/GraphView.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
+import 'package:mendoza_family_app/util/translation.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors, Matrix4;
 
 class GraphRenderer extends StatefulWidget {
@@ -17,6 +18,7 @@ class _GraphRendererState extends State<GraphRenderer> {
   final Graph graph = Graph()..isTree = true;
   int _orientation = BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
   Map<String, FamilyPerson> graphDataMemo = <String, FamilyPerson>{};
+  Translation trans = Translation();
 
   BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
   final TransformationController _controller = TransformationController();
@@ -41,7 +43,7 @@ class _GraphRendererState extends State<GraphRenderer> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Family Tree"),
+        title: Text(trans.getString('family_tree')),
         actions: buttonRow(),
       ),
       body: Column(
@@ -171,24 +173,26 @@ class _GraphRendererState extends State<GraphRenderer> {
         onSelected: (value) => handleMenuSelect(value),
         icon: const Icon(Icons.more_vert),
         itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-          const PopupMenuItem(
+          PopupMenuItem(
             value: "orient_horizontal",
             child: ListTile(
-              leading: Icon(Icons.text_rotation_none),
-              title: Text('Horizontal'),
+              leading: const Icon(Icons.text_rotation_none),
+              title: Text(trans.getString("horizontal")),
             ),
           ),
-          const PopupMenuItem(
+          PopupMenuItem(
             value: "orient_vertical",
             child: ListTile(
-              leading: Icon(Icons.text_rotate_vertical),
-              title: Text('Vertical'),
+              leading: const Icon(Icons.text_rotate_vertical),
+              title: Text(trans.getString("vertical")),
             ),
           ),
           const PopupMenuDivider(),
-          const PopupMenuItem(
-              value: "small_nodes", child: Text('Toggle Node Size')),
-          const PopupMenuItem(value: "reset_view", child: Text('Reset View')),
+          PopupMenuItem(
+              value: "small_nodes",
+              child: Text(trans.getString('toggle_node_size'))),
+          PopupMenuItem(
+              value: "reset_view", child: Text(trans.getString('reset_view'))),
         ],
       ),
     ];
