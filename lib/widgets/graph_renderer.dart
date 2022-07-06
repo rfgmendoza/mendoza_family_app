@@ -95,7 +95,6 @@ class _GraphRendererState extends State<GraphRenderer> {
   }
 
   Matrix4 resetViewToUser() {
-    // TODO: check for user existance
     return focusView(
         graph.getNodeUsingId(widget.user.id).key!.value.toString());
   }
@@ -145,7 +144,7 @@ class _GraphRendererState extends State<GraphRenderer> {
         });
         break;
       default:
-        print(value);
+        return;
     }
   }
 
@@ -278,7 +277,6 @@ class _GraphRendererState extends State<GraphRenderer> {
 
   GraphView renderInnerGraph(
       AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
-    // TODO only show graph between two family members
     return GraphView(
       graph: graph,
       algorithm: BuchheimWalkerAlgorithm(builder, TreeEdgeRenderer(builder)),

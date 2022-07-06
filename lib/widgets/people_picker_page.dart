@@ -15,7 +15,6 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
   List _items = [];
   List<FamilyPerson> _searchResult = [];
   List<bool> _filterGroup = [];
-  String? _searchText;
   TextEditingController controller = TextEditingController();
   bool _qrMode = false;
   ScanController scanController = ScanController();
@@ -134,7 +133,6 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
         : _items;
     List<FamilyPerson> searchResults = search(searchText, filteredItems);
     setState(() {
-      _searchText = searchText;
       _filterGroup = filterGroup;
       _searchResult = searchResults;
       _qrMode = false;

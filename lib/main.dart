@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mendoza_family_app/pages/home_page.dart';
-import 'package:mendoza_family_app/pages/login_page.dart';
 import 'package:mendoza_family_app/pages/search_page.dart';
-import 'package:mendoza_family_app/util/common_util.dart';
-import 'package:mendoza_family_app/widgets/common_scaffold.dart';
 
 void main() {
   runApp(const MendozaFamilyApp());

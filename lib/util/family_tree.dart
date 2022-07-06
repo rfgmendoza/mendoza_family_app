@@ -37,9 +37,9 @@ class FamilyTree {
     if (!_isInitialized) {
       await initFamily();
     }
-    List.generate(7, (index) => index).forEach((element) {
+    for (var element in List.generate(7, (index) => index)) {
       buildFamilyGraph(element);
-    });
+    }
   }
 
   Future buildFamilyGraph(int familyId) async {

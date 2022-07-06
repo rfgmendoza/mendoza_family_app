@@ -1,7 +1,3 @@
-import 'dart:collection';
-
-import 'common_util.dart';
-
 class Translation {
   static final Translation _instance = Translation._();
 
@@ -23,97 +19,87 @@ class Translation {
       case "unknown":
         // could not find a relationship
         return isEnglish ? "unknown" : "desconocido";
-        break;
+
       case "Who are you?":
         // self identification prompt
         return isEnglish ? "Who are you?" : "¿Quién eres tú?";
-        break;
+
       case "language":
         // language selection toggle
         return isEnglish ? "Spanish" : "Inglés";
-        break;
+
       case "mendoza_family_book":
         // main title
         return isEnglish ? "Mendoza Family Book" : "Libro de Familia Mendoza";
-        break;
+
       case "see_relationship_tree":
         // button to view relationship tree
         return isEnglish ? "See Relationship Tree" : "Ver árbol de relaciones";
-        break;
+
       case "see_full_tree":
         // button to view full family tree
         return isEnglish
             ? "See Full Family Tree"
             : "Ver Árbol Genealógico Completo";
-        break;
+
       case "people_picker_title":
         // title of people search page
         return isEnglish ? "Person Search" : "Búsqueda de Persona";
-        break;
+
       case "people_picker_instruction":
         // instructions for search page
         return isEnglish
             ? "Enter Name or Family Id"
             : "Ingrese el nombre o identificación de la familia";
-        break;
+
       case "horizontal":
         // could not find a relationship
         return isEnglish ? "Horizontal" : "Horizontal";
-        break;
+
       case "vertical":
         // could not find a relationship
         return isEnglish ? "Vertical" : "Vertical";
-        break;
 
       case "reset_view":
         // could not find a relationship
         return isEnglish ? "Reset View" : "Reestablecer vista";
-        break;
 
       case "toggle_node_size":
         // could not find a relationship
         return isEnglish ? "Toggle Node Size" : "Alternar tamaño de nodo";
-        break;
 
       case "family_tree":
         // could not find a relationship
         return isEnglish ? "Family Tree" : "Árbol de familia";
-        break;
 
       case "cancel":
         // could not find a relationship
         return isEnglish ? "Cancel" : "Cancelar";
-        break;
 
       case "confirm":
         // could not find a relationship
         return isEnglish ? "Confirm" : "Confirmar";
-        break;
 
       case "confirm_selection":
         // could not find a relationship
         return isEnglish ? "Confirm Selection" : "Confirmar selección";
-        break;
 
       case "you_sure":
         // could not find a relationship
         return isEnglish ? "Are You Sure?" : "¿Estas seguro?";
-        break;
 
       case "filter_by_group":
         // could not find a relationship
         return isEnglish
             ? "Filter by Family Group:"
             : "Filtrar por Grupo Familiar:";
-        break;
 
       case "select":
         // could not find a relationship
         return isEnglish ? "Select" : "Seleccione";
-        break;
 
       default:
+        return "<STRING UNTRANSLATED>";
     }
-    return "<STRING UNTRANSLATED>";
   }
 }
