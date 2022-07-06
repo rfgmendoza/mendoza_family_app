@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graphview/GraphView.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
+import 'package:mendoza_family_app/util/translation.dart';
 import 'package:vector_math/vector_math_64.dart' hide Colors, Matrix4;
 
 class GraphRenderer extends StatefulWidget {
@@ -17,11 +18,13 @@ class _GraphRendererState extends State<GraphRenderer> {
   final Graph graph = Graph()..isTree = true;
   int _orientation = BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
   Map<String, FamilyPerson> graphDataMemo = <String, FamilyPerson>{};
+  Translation trans = Translation();
 
   BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
   final TransformationController _controller = TransformationController();
   bool _firstRender = true;
   bool _smallNodes = false;
+  final double _nodeWidth = 200.0;
 
   @override
   void initState() {
@@ -40,7 +43,7 @@ class _GraphRendererState extends State<GraphRenderer> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_controller.value.getTranslation().xy.toString()),
+        title: Text(trans.getString('family_tree')),
         actions: buttonRow(),
       ),
       body: Column(
@@ -48,7 +51,7 @@ class _GraphRendererState extends State<GraphRenderer> {
         children: [
           FutureBuilder(
               future: generateFamilyTreeData(graph, widget.user,
-                  const FilterSettings(FilterMode.standard, null)),
+                  targetUser: widget.targetUser),
               builder:
                   (context, AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
                 if (snapshot.connectionState != ConnectionState.done ||
@@ -92,7 +95,6 @@ class _GraphRendererState extends State<GraphRenderer> {
   }
 
   Matrix4 resetViewToUser() {
-    // TODO: check for user existance
     return focusView(
         graph.getNodeUsingId(widget.user.id).key!.value.toString());
   }
@@ -103,7 +105,7 @@ class _GraphRendererState extends State<GraphRenderer> {
     );
     double scale = 1.0;
     Vector3 scalev = Vector3(scale, scale, scale);
-    Vector3 transV = Vector3(-(startNode.x - startNode.width / 3),
+    Vector3 transV = Vector3(-(startNode.x - startNode.width + _nodeWidth / 2),
         -(startNode.y - (startNode.height) * id.length), 0.0);
     return _controller.value.clone()
       ..setFromTranslationRotationScale(transV, Quaternion.identity(), scalev);
@@ -136,8 +138,13 @@ class _GraphRendererState extends State<GraphRenderer> {
           _smallNodes = !_smallNodes;
         });
         break;
+      case "reset_view":
+        setState(() {
+          _controller.value = resetViewToUser();
+        });
+        break;
       default:
-        print(value);
+        return;
     }
   }
 
@@ -150,13 +157,6 @@ class _GraphRendererState extends State<GraphRenderer> {
             });
           },
           icon: const Icon(Icons.control_camera)),
-      IconButton(
-          onPressed: () {
-            setState(() {
-              _controller.value = resetViewToUser();
-            });
-          },
-          icon: const Icon(Icons.travel_explore_sharp)),
       widget.targetUser != null
           ? IconButton(
               onPressed: () {
@@ -166,29 +166,32 @@ class _GraphRendererState extends State<GraphRenderer> {
                         builder: (context) =>
                             GraphRenderer(user: widget.user)));
               },
-              icon: const Icon(Icons.zoom_out_map))
+              icon: const Icon(Icons.person_off))
           : Container(),
       PopupMenuButton(
         onSelected: (value) => handleMenuSelect(value),
         icon: const Icon(Icons.more_vert),
         itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-          const PopupMenuItem(
+          PopupMenuItem(
             value: "orient_horizontal",
             child: ListTile(
-              leading: Icon(Icons.text_rotation_none),
-              title: Text('Horizontal'),
+              leading: const Icon(Icons.text_rotation_none),
+              title: Text(trans.getString("horizontal")),
             ),
           ),
-          const PopupMenuItem(
+          PopupMenuItem(
             value: "orient_vertical",
             child: ListTile(
-              leading: Icon(Icons.text_rotate_vertical),
-              title: Text('Vertical'),
+              leading: const Icon(Icons.text_rotate_vertical),
+              title: Text(trans.getString("vertical")),
             ),
           ),
           const PopupMenuDivider(),
-          const PopupMenuItem(
-              value: "small_nodes", child: Text('Toggle Node Size')),
+          PopupMenuItem(
+              value: "small_nodes",
+              child: Text(trans.getString('toggle_node_size'))),
+          PopupMenuItem(
+              value: "reset_view", child: Text(trans.getString('reset_view'))),
         ],
       ),
     ];
@@ -204,8 +207,11 @@ class _GraphRendererState extends State<GraphRenderer> {
     bool isUser = a.id == widget.user.id;
     bool isTarget = a.id == widget.targetUser?.id;
     bool isSmall = isSmallNode(a);
-    return SizedBox(
-      width: isSmall ? 100 : 250,
+    return Container(
+      decoration: const BoxDecoration(
+          // color: Colors.greenAccent,
+          borderRadius: BorderRadius.all(Radius.circular(20))),
+      width: isSmall ? _nodeWidth / 2 : _nodeWidth,
       child: Card(
           color: isUser
               ? Colors.blueAccent
@@ -217,16 +223,11 @@ class _GraphRendererState extends State<GraphRenderer> {
                 Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            GraphRenderer(user: widget.user, targetUser: a)));
+                        builder: (context) => GraphRenderer(
+                            user: widget.user,
+                            targetUser: isTarget ? null : a)));
               },
-              leading: isSmall ? null : Text(a.id),
-              title: isSmall
-                  ? Text(a.id)
-                  : Text(
-                      a.name.toUpperCase(),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+              title: isSmall ? Text(a.id) : largeTitle(a),
               subtitle: isSmall
                   ? null
                   : Text(
@@ -236,6 +237,22 @@ class _GraphRendererState extends State<GraphRenderer> {
                     ))),
     );
   }
+
+  Widget largeTitle(FamilyPerson a) {
+    return Text.rich(TextSpan(
+        // style: const TextStyle(
+        //     fontWeight: FontWeight.bold, color: Colors.black, fontSize: 14),
+        children: [
+          TextSpan(
+              text: a.id + "\n",
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          TextSpan(text: a.name.toUpperCase())
+        ]));
+  }
+
+  // Widget smallTitle(FamilyPerson b) {}
+
+  // Widget nodeContentsBeta(FamilyPerson a) {}
 
   Widget rectangleWidget(FamilyPerson? a) {
     return Container(
@@ -260,7 +277,6 @@ class _GraphRendererState extends State<GraphRenderer> {
 
   GraphView renderInnerGraph(
       AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
-    // TODO only show graph between two family members
     return GraphView(
       graph: graph,
       algorithm: BuchheimWalkerAlgorithm(builder, TreeEdgeRenderer(builder)),

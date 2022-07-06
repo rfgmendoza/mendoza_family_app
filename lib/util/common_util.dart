@@ -1,5 +1,6 @@
 import 'package:graphview/GraphView.dart';
 import 'package:mendoza_family_app/util/family_tree.dart';
+import 'package:mendoza_family_app/util/translation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:collection';
 import 'package:flutter/services.dart';
@@ -95,10 +96,14 @@ Future<bool> setCachedUser(FamilyPerson person, {bool target = false}) async {
   return success;
 }
 
-Future<bool> clearCachedUser() async {
+Future<bool> clearCachedUser({target = false}) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool success = true;
-  success = success && await prefs.remove('user');
+  if (!target) {
+    success = success && await prefs.remove('user');
+  } else {
+    success = success && await prefs.remove('target');
+  }
   return success;
 }
 
@@ -130,35 +135,43 @@ List<FamilyPerson> search(String searchText, List items) {
   return foundPeople;
 }
 
-bool isAncestorEdge(Edge edge, String id) {
-  bool out = false;
-  if (edge.destination.key?.value.contains(id) ||
-      id.contains(edge.destination.key?.value)) {
-    out = true;
-  }
-  // if (edge.source.key?.value.contains(id) ||
-  //     id.contains(edge.source.key?.value)) {
-  //   out = true;
-  // }
-  return out;
+bool isAncestorEdge(Edge edge, String user, String? target) {
+  String edgeDest = edge.destination.key?.value;
+  String edgeSource = edge.source.key?.value;
+
+  /**
+   * scratchpad:
+   * 
+   * edgeDest = 3a
+   * edgeSource = 3
+   * user = 31461
+   * target = 3145
+   * 
+   * assumptions:
+   * 3, 31, 314 should be true as all are common ancestors
+   * 3146 should be included because thats the relation to user
+   * 
+   * 
+   */
+  bool isUserAncestor = user.contains(edgeDest) && user.contains(edgeSource);
+  bool isTargetAncestor = target != null &&
+      target.contains(edgeDest) &&
+      target.contains(edgeSource);
+  return isUserAncestor || isTargetAncestor;
 }
 
-List<Edge> filterGraph(
-    List<Edge> edges, FamilyPerson user, FilterSettings settings) {
-  List<Edge> tempEdges = edges;
-  if (settings.filterMode == FilterMode.target && settings.target != null) {
-    tempEdges.retainWhere((element) =>
-        isAncestorEdge(element, user.id) &&
-        isAncestorEdge(element, settings.target!.id));
-  } else {
-    tempEdges.retainWhere((element) => isAncestorEdge(element, user.id));
+filterGraph(Graph graph, List<Edge> edges, FamilyPerson user,
+    {FamilyPerson? target}) {
+  for (var element in edges) {
+    isAncestorEdge(element, user.id, target?.id)
+        ? graph.addEdgeS(element)
+        : graph.removeEdge(element);
   }
-
-  return tempEdges;
 }
 
 Future<Map<String, FamilyPerson>> generateFamilyTreeData(
-    Graph graph, FamilyPerson user, FilterSettings filterSettings) async {
+    Graph graph, FamilyPerson user,
+    {FamilyPerson? targetUser}) async {
   int familyGroup = int.parse(user.id[0]) - 1;
   Map<String, FamilyPerson> nodes = {};
 
@@ -168,14 +181,12 @@ Future<Map<String, FamilyPerson>> generateFamilyTreeData(
 
   //add filter modes here
   nodes = familyTree.nodeMap[familyGroup]!;
-  List<Edge> edges = [];
-  edges.addAll(filterGraph(
-      familyTree.graphEdgesMap[familyGroup]!, user, filterSettings));
-
-  String targetId = filterSettings.target?.id ?? "";
-
-  graph.addEdges(edges);
-
+  if (targetUser != null) {
+    filterGraph(graph, familyTree.graphEdgesMap[familyGroup]!, user,
+        target: targetUser);
+  } else {
+    graph.addEdges(familyTree.graphEdgesMap[familyGroup]!);
+  }
   return nodes;
 }
 
@@ -212,7 +223,7 @@ String getRelationshipDescription(String user, String targetPerson) {
 
   int i = 0;
   List<int> outList = [];
-  String returnString = "unknown";
+  String returnString = Translation().getString("unknown");
   if (user == targetPerson) {
     returnString = "same person";
   }

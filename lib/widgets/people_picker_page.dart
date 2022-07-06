@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
+import 'package:mendoza_family_app/util/translation.dart';
 import 'package:scan/scan.dart';
 
 class PeoplePickerPage extends StatefulWidget {
@@ -14,10 +15,10 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
   List _items = [];
   List<FamilyPerson> _searchResult = [];
   List<bool> _filterGroup = [];
-  String? _searchText;
   TextEditingController controller = TextEditingController();
   bool _qrMode = false;
   ScanController scanController = ScanController();
+  final Translation _trans = Translation();
 
   @override
   void initState() {
@@ -42,16 +43,16 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
             ..pop()
             ..pop(person);
         },
-        child: const Text("Cancel"));
+        child: Text(_trans.getString("cancel")));
     Widget confirmButton = TextButton(
         onPressed: () async {
           Navigator.pop(context, true);
         },
-        child: const Text("Confirm"));
+        child: Text(_trans.getString("confirm")));
 
     AlertDialog alert = AlertDialog(
-        title: const Text("Confirm Selection"),
-        content: const Text("Are you sure?"),
+        title: Text(_trans.getString("confirm_selection")),
+        content: Text(_trans.getString("you_sure")),
         actions: [cancelButton, confirmButton]);
     return await showDialog(
         context: context,
@@ -67,9 +68,9 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
   Widget _buildSearchResults() {
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text("Filter by Family Group:"),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(_trans.getString("filter_by_group")),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 2.0),
@@ -101,7 +102,7 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
                     },
                     child: ListTile(
                         trailing: ElevatedButton(
-                          child: const Text("Select"),
+                          child: Text(_trans.getString("select")),
                           onPressed: () async {
                             final result = await confirmAlert(_searchResult[i]);
                             if (result) {
@@ -132,7 +133,6 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
         : _items;
     List<FamilyPerson> searchResults = search(searchText, filteredItems);
     setState(() {
-      _searchText = searchText;
       _filterGroup = filterGroup;
       _searchResult = searchResults;
       _qrMode = false;
@@ -173,7 +173,7 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
               ? const Icon(Icons.cancel_sharp)
               : const Icon(Icons.qr_code_scanner)),
       appBar: AppBar(
-        title: const Text("Find Person"),
+        title: Text(_trans.getString("people_picker_title")),
         // actions: [IconButton(onPressed: _searchMode, icon: customIcon)],
         centerTitle: true,
       ),
@@ -200,9 +200,9 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              "Enter Name or Family Id",
-              style: TextStyle(fontWeight: FontWeight.bold),
+            Text(
+              _trans.getString("people_picker_instruction"),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
