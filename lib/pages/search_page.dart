@@ -44,7 +44,7 @@ class _SearchPageState extends State<SearchPage> {
                         },
                       )
                     },
-                child: Text(_trans.getString("language")))
+                Widget: Text(_trans.getString("language")))
           ],
         ),
         body: Builder(builder: (context) {
