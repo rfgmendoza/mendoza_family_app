@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
 import 'package:mendoza_family_app/util/translation.dart';
 import 'package:scan/scan.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class PeoplePickerPage extends StatefulWidget {
   final String? familyGroup;
@@ -163,15 +164,17 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
     }
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            setState(() {
-              _qrMode = !_qrMode;
-            });
-          },
-          child: _qrMode
-              ? const Icon(Icons.cancel_sharp)
-              : const Icon(Icons.qr_code_scanner)),
+      floatingActionButton: !kIsWeb
+          ? FloatingActionButton(
+              onPressed: () {
+                setState(() {
+                  _qrMode = !_qrMode;
+                });
+              },
+              child: _qrMode
+                  ? const Icon(Icons.cancel_sharp)
+                  : const Icon(Icons.qr_code_scanner))
+          : null,
       appBar: AppBar(
         title: Text(_trans.getString("people_picker_title")),
         // actions: [IconButton(onPressed: _searchMode, icon: customIcon)],

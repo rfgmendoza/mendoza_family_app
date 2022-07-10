@@ -15,7 +15,7 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  Translation _trans = Translation();
+  final Translation _trans = Translation();
   bool _isEnglish = true;
 
   @override
