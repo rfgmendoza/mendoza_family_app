@@ -44,12 +44,12 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
             ..pop()
             ..pop(person);
         },
-        Widget: Text(_trans.getString("cancel")));
+        child: Text(_trans.getString("cancel")));
     Widget confirmButton = TextButton(
         onPressed: () async {
           Navigator.pop(context, true);
         },
-        Widget: Text(_trans.getString("confirm")));
+        child: Text(_trans.getString("confirm")));
 
     AlertDialog alert = AlertDialog(
         title: Text(_trans.getString("confirm_selection")),
@@ -226,7 +226,7 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
                   onPressed: () {
                     submitSearch(controller.text, _filterGroup);
                   },
-                  Widget: const Icon(
+                  child: const Icon(
                     Icons.search,
                     size: 40.0,
                   ),
