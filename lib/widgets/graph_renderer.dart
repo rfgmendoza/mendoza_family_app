@@ -220,12 +220,8 @@ class _GraphRendererState extends State<GraphRenderer> {
                   : Colors.white54,
           child: ListTile(
               onTap: () {
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => GraphRenderer(
-                            user: widget.user,
-                            targetUser: isTarget ? null : a)));
+                if (!isUser) setCachedUser(a, target: true);
+                Navigator.of(context).pushReplacementNamed("home");
               },
               title: isSmall ? Text(a.id) : largeTitle(a),
               subtitle: isSmall

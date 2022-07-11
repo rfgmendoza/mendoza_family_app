@@ -268,8 +268,12 @@ String getRelationshipDescription(String user, String targetPerson) {
     // 4 words = GREAT GREAT GRAND AUNT
     // gendiff < 0 = niece/nephew
     // gendiff > 0 = aunt/uncle
-    returnString =
-        generationDiff.isNegative ? "Niece / Nephew" : "aunt / uncle";
+    if (generationDiff == 0) {
+      returnString = "Sibling";
+    } else {
+      returnString =
+          generationDiff.isNegative ? "Niece / Nephew" : "Aunt / Uncle";
+    }
     returnString =
         prependGrandAndGreatPrefix(returnString, generationDiff.abs());
   } else if (betweenCommonAncestors >= 1) {
