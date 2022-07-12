@@ -218,6 +218,7 @@ Future<Map<String, FamilyPerson>> fetchNodeMap(
 String getRelationshipDescription(String user, String targetPerson) {
   List<String> userId = user.split("");
   List<String> targetId = targetPerson.split("");
+  final Translation _trans = Translation();
 
   int generationDiff = userId.length - targetId.length;
 
@@ -255,9 +256,11 @@ String getRelationshipDescription(String user, String targetPerson) {
 // 3 generations difference – 2 = 1 great   GREAT GRANDPARENT
 // 4 generations difference – 2 = 2 greats   GREAT x2 GRANDPARENT
     if (generationDiff < 0) {
-      returnString = prependGrandAndGreatPrefix("child", generationDiff.abs());
+      returnString = prependGrandAndGreatPrefix(
+          _trans.getString("child"), generationDiff.abs());
     } else if (generationDiff >= 1) {
-      returnString = prependGrandAndGreatPrefix("parent", generationDiff.abs());
+      returnString = prependGrandAndGreatPrefix(
+          _trans.getString("parent"), generationDiff.abs());
     }
   } else if (betweenCommonAncestors == 0) {
     //Uncle/Aunt/ niece/nephew
@@ -269,10 +272,11 @@ String getRelationshipDescription(String user, String targetPerson) {
     // gendiff < 0 = niece/nephew
     // gendiff > 0 = aunt/uncle
     if (generationDiff == 0) {
-      returnString = "Sibling";
+      returnString = _trans.getString("sibling");
     } else {
-      returnString =
-          generationDiff.isNegative ? "Niece / Nephew" : "Aunt / Uncle";
+      returnString = generationDiff.isNegative
+          ? _trans.getString("nibling")
+          : _trans.getString("titi");
     }
     returnString =
         prependGrandAndGreatPrefix(returnString, generationDiff.abs());
@@ -286,31 +290,32 @@ String getRelationshipDescription(String user, String targetPerson) {
 
     returnString = betweenCommonAncestors.toString() +
         ordinal(betweenCommonAncestors) +
-        " Cousin ";
+        _trans.getString("cousin");
     switch (generationDiff.abs()) {
       case 0:
         break;
       case 1:
-        returnString += "once removed";
+        returnString += _trans.getString("once_removed");
         break;
       case 2:
-        returnString += "twice removed";
+        returnString += _trans.getString("twice_removed");
         break;
       case 3:
-        returnString += "thrice removed";
+        returnString += _trans.getString("thrice_removed");
         break;
       default:
-        const wordMap = <int, String>{
-          4: "four",
-          5: "five",
-          6: "six",
-          7: "seven",
-          8: "eight",
-          9: "nine",
-          10: "ten",
+        var wordMap = <int, String>{
+          4: _trans.getString("four"),
+          5: _trans.getString("five"),
+          6: _trans.getString("six"),
+          7: _trans.getString("seven"),
+          8: _trans.getString("eight"),
+          9: _trans.getString("nine"),
+          10: _trans.getString("ten"),
         };
         if (generationDiff.abs() <= 10) {
-          returnString += wordMap[generationDiff.abs()]! + " removed";
+          returnString +=
+              wordMap[generationDiff.abs()]! + _trans.getString("removed");
         }
         break;
     }
@@ -321,16 +326,56 @@ String getRelationshipDescription(String user, String targetPerson) {
 
 String prependGrandAndGreatPrefix(String title, int generationDiff) {
   String out = "";
-  while (generationDiff >= 2) {
-    if (generationDiff == 2) {
-      out += "Grand";
+
+  final Translation _trans = Translation();
+  if (_trans.isEnglish) {
+    while (generationDiff >= 2) {
+      if (generationDiff == 2) {
+        out += "Grand";
+      }
+      if (generationDiff > 2) {
+        out += "Great ";
+      }
+      generationDiff--;
     }
-    if (generationDiff > 2) {
-      out += "Great ";
+    out = out + title;
+  } else {
+    //spanish
+    String abuelo = title;
+    int generationDiffMod = 0;
+    if (title == _trans.getString("parent")) {
+      abuelo = "Abuelo / Abuela";
+      title = "";
     }
-    generationDiff--;
+    if (title == _trans.getString("child")) {
+      abuelo = "nieto / nieta";
+      title = "";
+    }
+    if (title == _trans.getString("nibling")) {
+      abuelo = "nieto / nieta";
+    }
+    if (title == _trans.getString("titi")) {
+      abuelo = "Abuelo / Abuela";
+      // generationDiffMod = 1;
+    }
+    generationDiff += generationDiffMod;
+    if (generationDiff >= 2) {
+      if (generationDiff == 2) {
+        out = abuelo;
+      }
+      if (generationDiff == 3) {
+        out = "bis" + abuelo;
+      }
+      while (generationDiff >= 4) {
+        if (generationDiff == 4) {
+          out = "tatara " + out + abuelo;
+        }
+        out = "tatara " + out;
+        generationDiff--;
+      }
+    }
+    return title + " " + out;
   }
-  out = out + title;
   return out;
 }
 
@@ -343,7 +388,10 @@ String ordinal(int number) {
     //here you change the range
     throw Exception('Invalid number');
   }
-
+  final Translation _trans = Translation();
+  if (!_trans.isEnglish) {
+    return "º";
+  }
   if (number >= 11 && number <= 13) {
     return 'th';
   }

@@ -82,6 +82,7 @@
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"
+      customArchiveName = "MendozaFamilyBook"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>

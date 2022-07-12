@@ -93,10 +93,61 @@ class Translation {
         return isEnglish
             ? "Filter by Family Group:"
             : "Filtrar por Grupo Familiar:";
-
       case "select":
         // could not find a relationship
         return isEnglish ? "Select" : "Seleccione";
+      case "child":
+        // could not find a relationship
+        return isEnglish ? "child" : "hijo / hija";
+      case "parent":
+        // could not find a relationship
+        return isEnglish ? "parents" : "madre / padre";
+      case "sibling":
+        // could not find a relationship
+        return isEnglish ? "sibling" : "hermano / hermana";
+      case "nibling":
+        // could not find a relationship
+        return isEnglish ? "Niece / Nephew" : "Sobrino / Sobrina";
+      case "titi":
+        // could not find a relationship
+        return isEnglish ? "Aunt / Uncle" : "Tío / tía";
+      case "cousin":
+        // could not find a relationship
+        return isEnglish ? " cousin " : " prima / primo ";
+      case "once_removed":
+        // could not find a relationship
+        return isEnglish ? "once removed" : " una vez eliminado ";
+      case "twice_removed":
+        // could not find a relationship
+        return isEnglish ? "twice removed" : "eliminado dos veces";
+      case "thrice_removed":
+        // could not find a relationship
+        return isEnglish ? "thrice removed " : "Tres veces eliminada";
+      case "four":
+        // could not find a relationship
+        return isEnglish ? "four" : "cuatro";
+      case "five":
+        // could not find a relationship
+        return isEnglish ? "five" : "cinco";
+      case "six":
+        // could not find a relationship
+        return isEnglish ? "six" : "seis";
+      case "seven":
+        // could not find a relationship
+        return isEnglish ? "seven" : "siete";
+      case "eight":
+        // could not find a relationship
+        return isEnglish ? "eight" : "ocho";
+      case "nine":
+        // could not find a relationship
+        return isEnglish ? "nine" : "nueve";
+
+      case "ten":
+        // could not find a relationship
+        return isEnglish ? "ten" : "diez";
+      case "removed":
+        // could not find a relationship
+        return isEnglish ? "removed" : " prima / primo ";
 
       default:
         return "<STRING UNTRANSLATED>";
