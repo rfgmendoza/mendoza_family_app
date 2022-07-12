@@ -342,6 +342,9 @@ String prependGrandAndGreatPrefix(String title, int generationDiff) {
   } else {
     //spanish
     String abuelo = title;
+    if (generationDiff == 1) {
+      return title;
+    }
     int generationDiffMod = 0;
     if (title == _trans.getString("parent")) {
       abuelo = "Abuelo / Abuela";
