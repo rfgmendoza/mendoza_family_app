@@ -141,23 +141,39 @@ bool isAncestorEdge(Edge edge, String user, String? target) {
 
   /**
    * scratchpad:
-   * 
-   * edgeDest = 3a
-   * edgeSource = 3
-   * user = 31461
-   * target = 3145
-   * 
-   * assumptions:
-   * 3, 31, 314 should be true as all are common ancestors
-   * 3146 should be included because thats the relation to user
+   *
+   * plans to filter:
+   * create settings/config system
+   *   first order depth of relation
+   *    second-order depth
+   *    
    * 
    * 
    */
-  bool isUserAncestor = user.contains(edgeDest) && user.contains(edgeSource);
-  bool isTargetAncestor = target != null &&
-      target.contains(edgeDest) &&
-      target.contains(edgeSource);
-  return isUserAncestor || isTargetAncestor;
+  bool isUserAncestor = edgeRelation(edgeDest, edgeSource, user);
+  bool isTargetAncestor =
+      target != null && edgeRelation(edgeDest, edgeSource, target);
+  bool isUserDescendant = edgeRelationInverse(edgeDest, edgeSource, user);
+  bool isTargetDescendant =
+      target != null && edgeRelationInverse(edgeDest, edgeSource, target);
+  bool isSibling = edgeRelationInverse(
+          edgeDest, edgeSource, user.substring(0, user.length - 1)) ||
+      (target != null &&
+          edgeRelationInverse(
+              edgeDest, edgeSource, target.substring(0, target.length - 1)));
+  return isUserAncestor ||
+      isTargetAncestor ||
+      isUserDescendant ||
+      isTargetDescendant ||
+      isSibling;
+}
+
+bool edgeRelation(String edgeDest, String edgeSource, String id) {
+  return id.startsWith(edgeDest) && id.startsWith(edgeSource);
+}
+
+bool edgeRelationInverse(String edgeDest, String edgeSource, String id) {
+  return edgeDest.startsWith(id) && edgeSource.startsWith(id);
 }
 
 filterGraph(Graph graph, List<Edge> edges, FamilyPerson user,
