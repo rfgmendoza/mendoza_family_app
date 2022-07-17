@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:graphview/GraphView.dart';
 import 'package:mendoza_family_app/util/family_tree.dart';
 import 'package:mendoza_family_app/util/translation.dart';
@@ -5,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:collection';
 import 'package:flutter/services.dart';
 import 'dart:convert';
+import 'package:vector_math/vector_math_64.dart' hide Colors;
 
 class User {
   final String id;
@@ -156,16 +158,15 @@ bool isAncestorEdge(Edge edge, String user, String? target) {
   bool isUserDescendant = edgeRelationInverse(edgeDest, edgeSource, user);
   bool isTargetDescendant =
       target != null && edgeRelationInverse(edgeDest, edgeSource, target);
-  bool isSibling = edgeRelationInverse(
-          edgeDest, edgeSource, user.substring(0, user.length - 1)) ||
-      (target != null &&
-          edgeRelationInverse(
-              edgeDest, edgeSource, target.substring(0, target.length - 1)));
+  // bool isSibling = edgeRelationInverse(
+  //         edgeDest, edgeSource, user.substring(0, user.length - 1)) ||
+  //     (target != null &&
+  //         edgeRelationInverse(
+  //             edgeDest, edgeSource, target.substring(0, target.length - 1)));
   return isUserAncestor ||
       isTargetAncestor ||
       isUserDescendant ||
-      isTargetDescendant ||
-      isSibling;
+      isTargetDescendant;
 }
 
 bool edgeRelation(String edgeDest, String edgeSource, String id) {
@@ -173,7 +174,9 @@ bool edgeRelation(String edgeDest, String edgeSource, String id) {
 }
 
 bool edgeRelationInverse(String edgeDest, String edgeSource, String id) {
-  return edgeDest.startsWith(id) && edgeSource.startsWith(id);
+  return edgeDest.startsWith(id) &&
+      edgeSource.startsWith(id) &&
+      edgeSource.length <= id.length;
 }
 
 filterGraph(Graph graph, List<Edge> edges, FamilyPerson user,
@@ -425,4 +428,14 @@ String ordinal(int number) {
     default:
       return 'th';
   }
+}
+
+Color calcNodeColor(bool isUser, bool isTarget, bool isDeceased) {
+  if (isUser) {
+    return isDeceased ? Colors.indigo.shade300 : Colors.blueAccent;
+  }
+  if (isTarget) {
+    return isDeceased ? Colors.indigo.shade400 : Colors.greenAccent;
+  }
+  return isDeceased ? Colors.indigo.shade100 : Colors.white54;
 }

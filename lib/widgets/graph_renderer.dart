@@ -29,8 +29,9 @@ class _GraphRendererState extends State<GraphRenderer> {
   @override
   void initState() {
     super.initState();
-    _orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
+    _orientation = BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT;
     _firstRender = true;
+    _smallNodes = !(widget.targetUser != null);
   }
 
   @override
@@ -46,6 +47,16 @@ class _GraphRendererState extends State<GraphRenderer> {
         title: Text(trans.getString('family_tree')),
         actions: buttonRow(),
       ),
+      bottomNavigationBar: widget.targetUser != null
+          ? Container(
+              height: 20,
+              color: Theme.of(context).primaryColor,
+              child: Center(
+                child: Text(getRelationshipDescription(
+                    widget.user.id, widget.targetUser!.id)),
+              ),
+            )
+          : null,
       body: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
@@ -56,15 +67,7 @@ class _GraphRendererState extends State<GraphRenderer> {
                   (context, AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
                 if (snapshot.connectionState != ConnectionState.done ||
                     !snapshot.hasData) {
-                  return Expanded(
-                      child: Center(
-                          child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Text('Loading...'),
-                      Image(image: AssetImage('assets/MendozaLogo.png')),
-                    ],
-                  )));
+                  return loadingLogo();
                 } else {
                   if (snapshot.hasError) {
                     return Expanded(child: Text('Error: ${snapshot.error}'));
@@ -81,13 +84,26 @@ class _GraphRendererState extends State<GraphRenderer> {
                                   })
                                 }
                             });
-                    return renderGraph(snapshot);
+
+                    return _firstRender ? loadingLogo() : renderGraph(snapshot);
                   }
                 }
               }),
         ],
       ),
     );
+  }
+
+  Widget loadingLogo() {
+    return Expanded(
+        child: Center(
+            child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: const [
+        Text('Loading...'),
+        Image(image: AssetImage('assets/MendozaLogo.png')),
+      ],
+    )));
   }
 
   Matrix4 resetView() {
@@ -105,8 +121,23 @@ class _GraphRendererState extends State<GraphRenderer> {
     );
     double scale = 1.0;
     Vector3 scalev = Vector3(scale, scale, scale);
-    Vector3 transV = Vector3(-(startNode.x - startNode.width + _nodeWidth / 2),
-        -(startNode.y - (startNode.height) * id.length), 0.0);
+    Vector3 transV = Vector3(
+        -(startNode.x -
+            startNode.width +
+            _nodeWidth /
+                (_orientation ==
+                        BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT
+                    ? 4
+                    : 4)),
+        -(startNode.y -
+            (startNode.height) *
+                (_orientation ==
+                        BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT
+                    ? 2
+                    : id.length)),
+        0.0);
+    // Vector3 transV = Vector3(-(startNode.x - startNode.width + _nodeWidth / 2),
+    //     -(startNode.y - (startNode.height) * id.length), 0.0);
     return _controller.value.clone()
       ..setFromTranslationRotationScale(transV, Quaternion.identity(), scalev);
   }
@@ -136,6 +167,7 @@ class _GraphRendererState extends State<GraphRenderer> {
       case "small_nodes":
         setState(() {
           _smallNodes = !_smallNodes;
+          _firstRender = true;
         });
         break;
       case "reset_view":
@@ -153,7 +185,7 @@ class _GraphRendererState extends State<GraphRenderer> {
       IconButton(
           onPressed: () {
             setState(() {
-              _controller.value = resetView();
+              _controller.value = resetViewToUser();
             });
           },
           icon: const Icon(Icons.control_camera)),
@@ -189,9 +221,11 @@ class _GraphRendererState extends State<GraphRenderer> {
           const PopupMenuDivider(),
           PopupMenuItem(
               value: "small_nodes",
-              child: Text(trans.getString('toggle_node_size'))),
-          PopupMenuItem(
-              value: "reset_view", child: Text(trans.getString('reset_view'))),
+              child: _smallNodes
+                  ? Text(trans.getString('toggle_node_sizeA'))
+                  : Text(trans.getString('toggle_node_sizeB'))),
+          // PopupMenuItem(
+          //     value: "reset_view", child: Text(trans.getString('reset_view'))),
         ],
       ),
     ];
@@ -207,23 +241,20 @@ class _GraphRendererState extends State<GraphRenderer> {
     bool isUser = a.id == widget.user.id;
     bool isTarget = a.id == widget.targetUser?.id;
     bool isSmall = isSmallNode(a);
+    bool isDeceased = a.deceased;
     return Container(
       decoration: const BoxDecoration(
           // color: Colors.greenAccent,
           borderRadius: BorderRadius.all(Radius.circular(20))),
       width: isSmall ? _nodeWidth / 2 : _nodeWidth,
       child: Card(
-          color: isUser
-              ? Colors.blueAccent
-              : isTarget
-                  ? Colors.greenAccent
-                  : Colors.white54,
+          color: calcNodeColor(isUser, isTarget, isDeceased),
           child: ListTile(
               onTap: () {
                 if (!isUser) setCachedUser(a, target: true);
                 Navigator.of(context).pushReplacementNamed("home");
               },
-              title: isSmall ? Text(a.id) : largeTitle(a),
+              title: isSmall ? Text(idCreator(a)) : largeTitle(a),
               subtitle: isSmall
                   ? null
                   : Text(
@@ -234,13 +265,17 @@ class _GraphRendererState extends State<GraphRenderer> {
     );
   }
 
+  String idCreator(FamilyPerson a) {
+    return (a.deceased ? "† " : "") + a.id;
+  }
+
   Widget largeTitle(FamilyPerson a) {
     return Text.rich(TextSpan(
         // style: const TextStyle(
         //     fontWeight: FontWeight.bold, color: Colors.black, fontSize: 14),
         children: [
           TextSpan(
-              text: a.id + "\n",
+              text: idCreator(a) + "\n",
               style: const TextStyle(fontWeight: FontWeight.bold)),
           TextSpan(text: a.name.toUpperCase())
         ]));

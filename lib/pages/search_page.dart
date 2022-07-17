@@ -79,21 +79,23 @@ class _SearchPageState extends State<SearchPage> {
         Padding(
           padding: const EdgeInsets.fromLTRB(8.0, 0, 64.0, 0),
           child: Card(
-            color: Colors.lightBlue[200],
-            child: personTile(sourcePerson,
-                trailing: IconButton(
-                    onPressed: () {
-                      _openPeoplePicker(person?.id[0])
-                          .then((value) => {
-                                if (value != null)
-                                  {setCachedUser(value as FamilyPerson)}
-                              })
-                          .whenComplete(() => setState(
-                                () {},
-                              ));
-                    },
-                    icon: const Icon(Icons.person_search_rounded))),
-          ),
+              color: calcNodeColor(true, false, sourcePerson.deceased),
+              child: personTile(sourcePerson,
+                  trailing: Ink(
+                      decoration: const ShapeDecoration(
+                          shape: CircleBorder(), color: Colors.white60),
+                      child: IconButton(
+                          onPressed: () {
+                            _openPeoplePicker(person?.id[0])
+                                .then((value) => {
+                                      if (value != null)
+                                        {setCachedUser(value as FamilyPerson)}
+                                    })
+                                .whenComplete(() => setState(
+                                      () {},
+                                    ));
+                          },
+                          icon: const Icon(Icons.person_search_rounded))))),
         ),
         const Divider(),
         person != null
@@ -104,18 +106,22 @@ class _SearchPageState extends State<SearchPage> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(64.0, 0, 8.0, 0),
                     child: Card(
-                      color: Colors.lightGreen[200],
+                      color: calcNodeColor(false, true, person.deceased),
                       child: personTile(
                         person,
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            IconButton(
-                                onPressed: () {
-                                  clearCachedUser(target: true)
-                                      .whenComplete(() => setState(() {}));
-                                },
-                                icon: const Icon(Icons.person_remove)),
+                            Ink(
+                              decoration: const ShapeDecoration(
+                                  shape: CircleBorder(), color: Colors.white60),
+                              child: IconButton(
+                                  onPressed: () {
+                                    clearCachedUser(target: true)
+                                        .whenComplete(() => setState(() {}));
+                                  },
+                                  icon: const Icon(Icons.person_remove)),
+                            ),
                           ],
                         ),
                       ),

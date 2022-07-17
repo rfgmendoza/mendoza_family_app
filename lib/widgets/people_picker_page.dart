@@ -111,11 +111,14 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
                             }
                           },
                         ),
-                        leading: Text(_searchResult[i].id),
+                        leading: Text((_searchResult[i].deceased ? "† " : "") +
+                            _searchResult[i].id),
                         title: Text(
                           _searchResult[i].name,
                         ),
-                        subtitle: Text(_searchResult[i].spouse)),
+                        subtitle: Text(
+                            (_searchResult[i].spouseDeceased ? "† " : "") +
+                                _searchResult[i].spouse)),
                   ),
                 );
               }),

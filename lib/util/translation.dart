@@ -26,7 +26,7 @@ class Translation {
 
       case "language":
         // language selection toggle
-        return isEnglish ? "Spanish" : "Inglés";
+        return isEnglish ? "Español" : "English";
 
       case "mendoza_family_book":
         // main title
@@ -64,9 +64,13 @@ class Translation {
         // could not find a relationship
         return isEnglish ? "Reset View" : "Reestablecer vista";
 
-      case "toggle_node_size":
+      case "toggle_node_sizeB":
         // could not find a relationship
-        return isEnglish ? "Toggle Node Size" : "Alternar tamaño de nodo";
+        return isEnglish ? "Number Only" : "Solo número";
+
+      case "toggle_node_sizeA":
+        // could not find a relationship
+        return isEnglish ? "Full Names" : "Nombres completos";
 
       case "family_tree":
         // could not find a relationship
