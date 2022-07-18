@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
+import 'package:mendoza_family_app/util/common_widgets.dart';
 import 'package:mendoza_family_app/util/translation.dart';
 import 'package:scan/scan.dart';
 import 'package:collection/collection.dart';
@@ -41,10 +42,13 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
           if (!currentFocus.hasPrimaryFocus) {
             currentFocus.unfocus();
           }
-
-          Navigator.of(context)
-            ..pop()
-            ..pop(person);
+          if (_qrMode) {
+            Navigator.of(context)
+              ..pop()
+              ..pop(false);
+          } else {
+            Navigator.pop(context, false);
+          }
         },
         child: Text(_trans.getString("cancel")));
     Widget confirmButton = TextButton(
@@ -55,7 +59,14 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
 
     AlertDialog alert = AlertDialog(
         title: Text(_trans.getString("confirm_selection")),
-        content: Text(_trans.getString("you_sure")),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(_trans.getString("you_sure")),
+            const Divider(),
+            personTile(person)
+          ],
+        ),
         actions: [cancelButton, confirmButton]);
     return await showDialog(
         context: context,
@@ -142,6 +153,12 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
         final result = await confirmAlert(foundPerson);
         if (result) {
           Navigator.pop(context, foundPerson);
+        } else {
+          setState(() {
+            _filterGroup = fg;
+            _searchResult = searchResults;
+            _qrMode = false;
+          });
         }
       } else {
         setState(() {
@@ -151,7 +168,7 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
         });
       }
     } else {
-      List<FamilyPerson> searchResults = search(searchText, filterGroup);
+      List<FamilyPerson> searchResults = search(searchText, filteredItems);
       setState(() {
         _filterGroup = fg;
         _searchResult = searchResults;
