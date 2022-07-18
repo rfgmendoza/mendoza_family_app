@@ -47,16 +47,23 @@ class _GraphRendererState extends State<GraphRenderer> {
         title: Text(trans.getString('family_tree')),
         actions: buttonRow(),
       ),
-      bottomNavigationBar: widget.targetUser != null
-          ? Container(
-              height: 20,
-              color: Theme.of(context).primaryColor,
-              child: Center(
-                child: Text(getRelationshipDescription(
-                    widget.user.id, widget.targetUser!.id)),
+      floatingActionButton: widget.targetUser != null
+          ? Card(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  side: BorderSide.none),
+              color: Theme.of(context).secondaryHeaderColor,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  getRelationshipDescription(
+                      widget.user.id, widget.targetUser!.id),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             )
           : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
@@ -243,12 +250,17 @@ class _GraphRendererState extends State<GraphRenderer> {
     bool isSmall = isSmallNode(a);
     bool isDeceased = a.deceased;
     return Container(
-      decoration: const BoxDecoration(
-          // color: Colors.greenAccent,
-          borderRadius: BorderRadius.all(Radius.circular(20))),
+      decoration: BoxDecoration(
+          color: calcNodeColor(isUser, isTarget, isDeceased),
+          border: Border.all(
+              color: isUser || isTarget ? Colors.black45 : Colors.transparent,
+              width: 2.0),
+          borderRadius: const BorderRadius.all(Radius.circular(20))),
       width: isSmall ? _nodeWidth / 2 : _nodeWidth,
       child: Card(
-          color: calcNodeColor(isUser, isTarget, isDeceased),
+          elevation: 2.0,
+          color: Colors.transparent,
+          shadowColor: Colors.transparent,
           child: ListTile(
               onTap: () {
                 if (!isUser) setCachedUser(a, target: true);
