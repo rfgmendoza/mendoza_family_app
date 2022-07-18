@@ -74,10 +74,39 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget personCards(FamilyPerson sourcePerson, FamilyPerson? person) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
       children: [
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                "Let others scan this QR code from within the app",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Card(
+              elevation: 4.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              color: calcNodeColor(true, false, sourcePerson.deceased),
+              child: Container(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  elevation: 5.0,
+                  child: QrImage(
+                    data: sourcePerson.id,
+                    version: QrVersions.auto,
+                    size: 200.0,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
         Padding(
-          padding: const EdgeInsets.fromLTRB(8.0, 0, 64.0, 0),
+          padding: const EdgeInsets.fromLTRB(8.0, 8.0, 64.0, 0),
           child: Card(
               color: calcNodeColor(true, false, sourcePerson.deceased),
               child: personTile(sourcePerson,
@@ -130,8 +159,15 @@ class _SearchPageState extends State<SearchPage> {
                 ],
               )
             : Center(
-                child: IconButton(
-                  icon: const Icon(Icons.person_add_alt_outlined),
+                child: ElevatedButton(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: const [
+                      Text("Click Here to Find Family Member"),
+                      Icon(Icons.person_add_alt_outlined),
+                    ],
+                  ),
                   onPressed: () {
                     _openPeoplePicker(sourcePerson.id[0])
                         .then((value) =>
@@ -152,14 +188,8 @@ class _SearchPageState extends State<SearchPage> {
     FamilyPerson? targetPerson = peopleMap["target"];
     return Padding(
       padding: const EdgeInsets.all(20.0),
-      child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-        Card(
-          child: QrImage(
-            data: user.id,
-            version: QrVersions.auto,
-            size: 200.0,
-          ),
-        ),
+      child:
+          Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
         personCards(user, targetPerson),
         ElevatedButton(
             onPressed: () {
