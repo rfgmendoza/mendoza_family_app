@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
 import 'package:mendoza_family_app/util/translation.dart';
 import 'package:scan/scan.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class PeoplePickerPage extends StatefulWidget {
@@ -40,6 +41,7 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
           if (!currentFocus.hasPrimaryFocus) {
             currentFocus.unfocus();
           }
+
           Navigator.of(context)
             ..pop()
             ..pop(person);
@@ -98,9 +100,6 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
               itemBuilder: (context, i) {
                 return Card(
                   child: InkWell(
-                    onTap: () async {
-                      await confirmAlert(_searchResult[i]);
-                    },
                     child: ListTile(
                         trailing: ElevatedButton(
                           child: Text(_trans.getString("select")),
@@ -131,20 +130,40 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
     return filterGroup.indexWhere((element) => element);
   }
 
-  void submitSearch(String searchText, List<bool> filterGroup) {
-    List<dynamic> filteredItems = getFilterGroupInt(filterGroup) != -1
-        ? [_items[getFilterGroupInt(filterGroup)]]
-        : _items;
+  Future<void> submitSearch(String searchText, List<bool> filterGroup) async {
+    List<bool> fg = _qrMode ? List.generate(7, (index) => false) : filterGroup;
+    List<dynamic> filteredItems =
+        getFilterGroupInt(fg) != -1 ? [_items[getFilterGroupInt(fg)]] : _items;
     List<FamilyPerson> searchResults = search(searchText, filteredItems);
-    setState(() {
-      _filterGroup = filterGroup;
-      _searchResult = searchResults;
-      _qrMode = false;
-    });
+    if (_qrMode) {
+      FamilyPerson? foundPerson =
+          searchResults.firstWhereOrNull((element) => element.id == searchText);
+      if (foundPerson != null) {
+        final result = await confirmAlert(foundPerson);
+        if (result) {
+          Navigator.pop(context, foundPerson);
+        }
+      } else {
+        setState(() {
+          _filterGroup = fg;
+          _searchResult = searchResults;
+          _qrMode = false;
+        });
+      }
+    } else {
+      List<FamilyPerson> searchResults = search(searchText, filterGroup);
+      setState(() {
+        _filterGroup = fg;
+        _searchResult = searchResults;
+        _qrMode = false;
+      });
+    }
   }
 
-  void _getQrCode(String qrcode, List<bool> filterGroup) {
+  void _getQrCode(String qrcode) {
     controller.text = qrcode;
+
+    List<bool> filterGroup = List.generate(7, (index) => false);
     submitSearch(qrcode, filterGroup);
   }
 
@@ -167,7 +186,7 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
     }
 
     return Scaffold(
-      floatingActionButton: !kIsWeb
+      floatingActionButton: !kIsWeb && widget.familyGroup != null
           ? FloatingActionButton(
               onPressed: () {
                 setState(() {
@@ -194,7 +213,7 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
           scanAreaScale: 0.7,
           scanLineColor: Colors.red,
           onCapture: (data) {
-            _getQrCode(data, _filterGroup);
+            _getQrCode(data);
           }),
     );
   }
