@@ -145,36 +145,22 @@ class _PeoplePickerPageState extends State<PeoplePickerPage> {
     List<bool> fg = _qrMode ? List.generate(7, (index) => false) : filterGroup;
     List<dynamic> filteredItems =
         getFilterGroupInt(fg) != -1 ? [_items[getFilterGroupInt(fg)]] : _items;
-    List<FamilyPerson> searchResults = search(searchText, filteredItems);
     if (_qrMode) {
-      FamilyPerson? foundPerson =
-          searchResults.firstWhereOrNull((element) => element.id == searchText);
-      if (foundPerson != null) {
-        final result = await confirmAlert(foundPerson);
+      FamilyPerson? person = searchExactId(searchText, filteredItems);
+      if (person != null) {
+        final result = await confirmAlert(person);
         if (result) {
-          Navigator.pop(context, foundPerson);
-        } else {
-          setState(() {
-            _filterGroup = fg;
-            _searchResult = searchResults;
-            _qrMode = false;
-          });
+          Navigator.pop(context, person);
         }
-      } else {
-        setState(() {
-          _filterGroup = fg;
-          _searchResult = searchResults;
-          _qrMode = false;
-        });
       }
-    } else {
-      List<FamilyPerson> searchResults = search(searchText, filteredItems);
-      setState(() {
-        _filterGroup = fg;
-        _searchResult = searchResults;
-        _qrMode = false;
-      });
     }
+    // fall through to return search results
+    List<FamilyPerson> searchResults = search(searchText, filteredItems);
+    setState(() {
+      _filterGroup = fg;
+      _searchResult = searchResults;
+      _qrMode = false;
+    });
   }
 
   void _getQrCode(String qrcode) {

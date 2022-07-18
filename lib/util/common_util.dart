@@ -109,6 +109,25 @@ Future<bool> clearCachedUser({target = false}) async {
   return success;
 }
 
+FamilyPerson? searchExactId(String id, List items) {
+  if (id.isEmpty) {
+    return null;
+  }
+  Queue searchNodes = Queue.from(items);
+  List<FamilyPerson> foundPeople = [];
+  while (searchNodes.isNotEmpty) {
+    var node = searchNodes.removeFirst();
+    bool found = node["id"] == id;
+    if (found) {
+      return FamilyPerson.fromJson(node);
+    }
+    if (node["children"] != null && node["children"] != []) {
+      searchNodes.addAll(node["children"]);
+    }
+  }
+  return null;
+}
+
 List<FamilyPerson> search(String searchText, List items) {
   if (searchText.isEmpty) {
     return [];

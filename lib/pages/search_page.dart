@@ -6,6 +6,8 @@ import 'package:mendoza_family_app/util/translation.dart';
 import 'package:mendoza_family_app/widgets/graph_renderer.dart';
 import 'package:mendoza_family_app/widgets/people_picker_page.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:scan/scan.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -17,6 +19,8 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final Translation _trans = Translation();
   bool _isEnglish = true;
+  bool _qrMode = false;
+  ScanController scanController = ScanController();
 
   @override
   void initState() {
@@ -47,6 +51,15 @@ class _SearchPageState extends State<SearchPage> {
                 child: Text(_trans.getString("language")))
           ],
         ),
+        floatingActionButton: !kIsWeb && _qrMode
+            ? FloatingActionButton(
+                onPressed: () {
+                  setState(() {
+                    _qrMode = !_qrMode;
+                  });
+                },
+                child: const Icon(Icons.cancel_sharp))
+            : null,
         body: Builder(builder: (context) {
           return FutureBuilder(
             future: getCachedUser(),
@@ -59,7 +72,9 @@ class _SearchPageState extends State<SearchPage> {
                   if (snapshot.hasData) {
                     if (snapshot.data != null &&
                         snapshot.data!.containsKey("user")) {
-                      return searchOptions(context, snapshot.data!);
+                      return _qrMode
+                          ? qrCodeScanner()
+                          : searchOptions(context, snapshot.data!);
                     } else {
                       return const LoginPage();
                     }
@@ -70,6 +85,32 @@ class _SearchPageState extends State<SearchPage> {
             },
           );
         }));
+  }
+
+  Widget qrCodeScanner() {
+    return Center(
+      child: ScanView(
+          controller: scanController,
+          scanAreaScale: 0.7,
+          scanLineColor: Colors.red,
+          onCapture: (data) {
+            _getQrCode(data);
+          }),
+    );
+  }
+
+  void _getQrCode(String qrcode) {
+    FamilyPerson? person;
+    readFamilyJson()
+        .then((value) => searchExactId(qrcode, value))
+        .then((value) => {
+              if (value != null) {setCachedUser(value, target: true)}
+            })
+        .whenComplete(() => setState(
+              () {
+                _qrMode = false;
+              },
+            ));
   }
 
   Widget personCards(FamilyPerson sourcePerson, FamilyPerson? person) {
@@ -177,7 +218,7 @@ class _SearchPageState extends State<SearchPage> {
                             ));
                   },
                 ),
-              )
+              ),
       ],
     );
   }
@@ -188,21 +229,39 @@ class _SearchPageState extends State<SearchPage> {
     FamilyPerson? targetPerson = peopleMap["target"];
     return Padding(
       padding: const EdgeInsets.all(20.0),
-      child:
-          Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-        personCards(user, targetPerson),
-        ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          GraphRenderer(user: user, targetUser: targetPerson)));
-            },
-            child: Text(targetPerson != null
-                ? _trans.getString("see_relationship_tree")
-                : _trans.getString("see_full_tree"))),
-      ]),
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            personCards(user, targetPerson),
+            !kIsWeb
+                ? ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _qrMode = !_qrMode;
+                      });
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisSize: MainAxisSize.max,
+                      children: const [
+                        Text("Click to scan a QR code "),
+                        Icon(Icons.qr_code_scanner),
+                      ],
+                    ))
+                : Container(),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => GraphRenderer(
+                              user: user, targetUser: targetPerson)));
+                },
+                child: Text(targetPerson != null
+                    ? _trans.getString("see_relationship_tree")
+                    : _trans.getString("see_full_tree"))),
+          ]),
     );
   }
 
