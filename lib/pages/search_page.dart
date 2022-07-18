@@ -204,9 +204,9 @@ class _SearchPageState extends State<SearchPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const [
-                      Text("Click Here to Find Family Member"),
-                      Icon(Icons.person_add_alt_outlined),
+                    children: [
+                      Text(_trans.getString("click-to-search")),
+                      const Icon(Icons.person_add_alt_outlined),
                     ],
                   ),
                   onPressed: () {
@@ -244,9 +244,9 @@ class _SearchPageState extends State<SearchPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       mainAxisSize: MainAxisSize.max,
-                      children: const [
-                        Text("Click to scan a QR code "),
-                        Icon(Icons.qr_code_scanner),
+                      children: [
+                        Text(_trans.getString("scan-qr-code")),
+                        const Icon(Icons.qr_code_scanner),
                       ],
                     ))
                 : Container(),

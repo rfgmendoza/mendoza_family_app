@@ -153,6 +153,16 @@ class Translation {
         // could not find a relationship
         return isEnglish ? "removed" : " prima / primo ";
 
+      case "click-to-search":
+        return isEnglish
+            ? "Click Here to Find Family Member"
+            : "Haga clic aquí para encontrar un miembro de la familia";
+
+      case "scan-qr-code":
+        return isEnglish
+            ? "Click to scan a QR code "
+            : "Haga clic para escanear un código QR ";
+
       default:
         return "<STRING UNTRANSLATED>";
     }
