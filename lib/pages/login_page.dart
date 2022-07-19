@@ -11,7 +11,16 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
         child: ElevatedButton(
-      child: Text(Translation().getString("Who are you?")),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(Translation().getString("Who are you?")),
+            const Icon(Icons.person_search_rounded)
+          ],
+        ),
+      ),
       onPressed: () {
         _navigateToPeoplePicker(context);
       },
