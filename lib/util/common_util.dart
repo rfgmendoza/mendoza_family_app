@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:collection';
 import 'package:flutter/services.dart';
 import 'dart:convert';
-import 'package:vector_math/vector_math_64.dart' hide Colors;
 
 class User {
   final String id;
@@ -114,7 +113,6 @@ FamilyPerson? searchExactId(String id, List items) {
     return null;
   }
   Queue searchNodes = Queue.from(items);
-  List<FamilyPerson> foundPeople = [];
   while (searchNodes.isNotEmpty) {
     var node = searchNodes.removeFirst();
     bool found = node["id"] == id;

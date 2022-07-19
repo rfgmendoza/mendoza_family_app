@@ -3,7 +3,6 @@ import 'package:mendoza_family_app/util/common_util.dart';
 import 'package:mendoza_family_app/util/common_widgets.dart';
 import 'package:mendoza_family_app/util/translation.dart';
 import 'package:scan/scan.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class PeoplePickerPage extends StatefulWidget {

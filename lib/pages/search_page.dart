@@ -100,7 +100,6 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _getQrCode(String qrcode) {
-    FamilyPerson? person;
     readFamilyJson()
         .then((value) => searchExactId(qrcode, value))
         .then((value) => {
