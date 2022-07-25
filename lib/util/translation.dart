@@ -156,7 +156,7 @@ class Translation {
       case "click-to-search":
         return isEnglish
             ? "Click Here to Find Family Member"
-            : "Haga clic aquí para encontrar un miembro de la familia";
+            : "Haga clic para encontrar la familia";
 
       case "scan-qr-code":
         return isEnglish

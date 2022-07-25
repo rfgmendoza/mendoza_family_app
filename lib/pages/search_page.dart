@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mendoza_family_app/pages/about_page.dart';
 import 'package:mendoza_family_app/pages/login_page.dart';
 import 'package:mendoza_family_app/util/common_util.dart';
 import 'package:mendoza_family_app/util/common_widgets.dart';
@@ -8,6 +9,8 @@ import 'package:mendoza_family_app/widgets/people_picker_page.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:scan/scan.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+
+import 'package:contactus/contactus.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -34,6 +37,18 @@ class _SearchPageState extends State<SearchPage> {
         TextButton.styleFrom(primary: Theme.of(context).colorScheme.onPrimary);
     _trans.setLanguage(_isEnglish);
     return Scaffold(
+        bottomNavigationBar: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: ElevatedButton(
+              child: const Text("Contact The Developer"),
+              onPressed: () => {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AboutPage(),
+                        fullscreenDialog: true))
+              },
+            )),
         appBar: AppBar(
           title: Text(_trans.getString("mendoza_family_book")),
           centerTitle: true,
