@@ -92,7 +92,7 @@ class _GraphRendererState extends State<GraphRenderer> {
                                 }
                             });
 
-                    return _firstRender ? loadingLogo() : renderGraph(snapshot);
+                    return renderGraph(snapshot);
                   }
                 }
               }),
@@ -253,7 +253,7 @@ class _GraphRendererState extends State<GraphRenderer> {
       decoration: BoxDecoration(
           color: calcNodeColor(isUser, isTarget, isDeceased),
           border: Border.all(
-              color: isUser || isTarget ? Colors.black45 : Colors.transparent,
+              color: isUser || isTarget ? Colors.black45 : Colors.grey,
               width: 2.0),
           borderRadius: const BorderRadius.all(Radius.circular(20))),
       width: isSmall ? _nodeWidth / 2 : _nodeWidth,

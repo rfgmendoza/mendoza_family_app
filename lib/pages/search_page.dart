@@ -153,7 +153,7 @@ class _SearchPageState extends State<SearchPage> {
                   child: QrImage(
                     data: sourcePerson.id,
                     version: QrVersions.auto,
-                    size: 200.0,
+                    size: person != null ? 100.0 : 200.0,
                   ),
                 ),
               ),
@@ -249,20 +249,22 @@ class _SearchPageState extends State<SearchPage> {
           children: [
             personCards(user, targetPerson),
             !kIsWeb
-                ? ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _qrMode = !_qrMode;
-                      });
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Text(_trans.getString("scan-qr-code")),
-                        const Icon(Icons.qr_code_scanner),
-                      ],
-                    ))
+                ? targetPerson == null
+                    ? ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _qrMode = !_qrMode;
+                          });
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Text(_trans.getString("scan-qr-code")),
+                            const Icon(Icons.qr_code_scanner),
+                          ],
+                        ))
+                    : Container()
                 : Container(),
             ElevatedButton(
                 onPressed: () {
