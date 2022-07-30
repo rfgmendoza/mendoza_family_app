@@ -1,4 +1,4 @@
-package com.example.mendoza_family_app
+package com.mendoza.family_book
 
 import io.flutter.embedding.android.FlutterActivity
 

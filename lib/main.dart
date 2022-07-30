@@ -13,7 +13,7 @@ class MendozaFamilyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
+        title: 'Mendoza Family App',
         theme: ThemeData(
             // This is the theme of your application.
             //
