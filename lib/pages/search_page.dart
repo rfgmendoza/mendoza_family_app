@@ -76,28 +76,30 @@ class _SearchPageState extends State<SearchPage> {
                 child: const Icon(Icons.cancel_sharp))
             : null,
         body: Builder(builder: (context) {
-          return FutureBuilder(
-            future: getCachedUser(),
-            builder: (BuildContext context,
-                AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.waiting:
-                  return const CircularProgressIndicator();
-                default:
-                  if (snapshot.hasData) {
-                    if (snapshot.data != null &&
-                        snapshot.data!.containsKey("user")) {
-                      return _qrMode
-                          ? qrCodeScanner()
-                          : searchOptions(context, snapshot.data!);
+          return SingleChildScrollView(
+            child: FutureBuilder(
+              future: getCachedUser(),
+              builder: (BuildContext context,
+                  AsyncSnapshot<Map<String, FamilyPerson>> snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.waiting:
+                    return const CircularProgressIndicator();
+                  default:
+                    if (snapshot.hasData) {
+                      if (snapshot.data != null &&
+                          snapshot.data!.containsKey("user")) {
+                        return _qrMode
+                            ? qrCodeScanner()
+                            : searchOptions(context, snapshot.data!);
+                      } else {
+                        return const LoginPage();
+                      }
                     } else {
                       return const LoginPage();
                     }
-                  } else {
-                    return const LoginPage();
-                  }
-              }
-            },
+                }
+              },
+            ),
           );
         }));
   }
